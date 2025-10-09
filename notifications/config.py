@@ -1,0 +1,238 @@
+"""
+Notification configuration management
+
+Handles loading and validation of notification settings from config files and environment variables.
+"""
+
+import json
+import os
+import logging
+from typing import Dict, Any, Optional
+from dataclasses import dataclass
+
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+@dataclass
+class NotificationConfig:
+    """Configuration data structure for notifications."""
+    enabled: bool = False
+    telegram_enabled: bool = False
+    whatsapp_enabled: bool = False
+    telegram_config: Dict[str, Any] = None
+    whatsapp_config: Dict[str, Any] = None
+    preferences: Dict[str, Any] = None
+    delivery_config: Dict[str, Any] = None
+    
+    def __post_init__(self):
+        if self.telegram_config is None:
+            self.telegram_config = {}
+        if self.whatsapp_config is None:
+            self.whatsapp_config = {}
+        if self.preferences is None:
+            self.preferences = {}
+        if self.delivery_config is None:
+            self.delivery_config = {}
+
+class NotificationConfigManager:
+    """Manages notification configuration loading and validation."""
+    
+    def __init__(self, config_file: str = 'config.json'):
+        """Initialize configuration manager."""
+        self.config_file = config_file
+        self.logger = logging.getLogger(__name__)
+        self._config = None
+        
+    def load_config(self) -> NotificationConfig:
+        """
+        Load notification configuration from file and environment variables.
+        
+        Returns:
+            NotificationConfig: Loaded configuration
+        """
+        try:
+            # Load base configuration from file
+            with open(self.config_file, 'r') as f:
+                config_data = json.load(f)
+            
+            notifications_config = config_data.get('notifications', {})
+            
+            # Load environment variables for sensitive data
+            telegram_config = notifications_config.get('telegram', {})
+            telegram_config['bot_token'] = self._get_env_var(
+                'TELEGRAM_BOT_TOKEN', 
+                telegram_config.get('bot_token')
+            )
+            telegram_config['chat_id'] = self._get_env_var(
+                'TELEGRAM_CHAT_ID',
+                telegram_config.get('chat_id')
+            )
+            
+            whatsapp_config = notifications_config.get('whatsapp', {})
+            whatsapp_config['access_token'] = self._get_env_var(
+                'WHATSAPP_ACCESS_TOKEN',
+                whatsapp_config.get('access_token')
+            )
+            whatsapp_config['phone_number_id'] = self._get_env_var(
+                'WHATSAPP_PHONE_ID',
+                whatsapp_config.get('phone_number_id')
+            )
+            whatsapp_config['recipient'] = self._get_env_var(
+                'WHATSAPP_RECIPIENT',
+                whatsapp_config.get('recipient')
+            )
+            
+            # Create configuration object
+            self._config = NotificationConfig(
+                enabled=notifications_config.get('enabled', False),
+                telegram_enabled=telegram_config.get('enabled', False),
+                whatsapp_enabled=whatsapp_config.get('enabled', False),
+                telegram_config=telegram_config,
+                whatsapp_config=whatsapp_config,
+                preferences=notifications_config.get('preferences', {}),
+                delivery_config=notifications_config.get('delivery', {})
+            )
+            
+            self.logger.info("Notification configuration loaded successfully")
+            return self._config
+            
+        except Exception as e:
+            self.logger.error(f"Error loading notification configuration: {str(e)}")
+            # Return default configuration
+            return NotificationConfig()
+    
+    def _get_env_var(self, env_name: str, default_value: Optional[str] = None) -> Optional[str]:
+        """
+        Get environment variable with fallback to default value.
+        
+        Args:
+            env_name: Environment variable name
+            default_value: Default value if env var not found
+            
+        Returns:
+            str: Environment variable value or default
+        """
+        value = os.getenv(env_name, default_value)
+        if value and value.startswith('${') and value.endswith('}'):
+            # Handle template variables like ${TELEGRAM_BOT_TOKEN}
+            actual_env_name = value[2:-1]
+            return os.getenv(actual_env_name, default_value)
+        return value
+    
+    def validate_config(self, config: NotificationConfig) -> Dict[str, Any]:
+        """
+        Validate notification configuration.
+        
+        Args:
+            config: Configuration to validate
+            
+        Returns:
+            dict: Validation results with errors and warnings
+        """
+        errors = []
+        warnings = []
+        
+        if not config.enabled:
+            warnings.append("Notifications are disabled")
+            return {'valid': True, 'errors': errors, 'warnings': warnings}
+        
+        # Validate Telegram configuration
+        if config.telegram_enabled:
+            if not config.telegram_config.get('bot_token'):
+                errors.append("Telegram bot token is required when Telegram is enabled")
+            if not config.telegram_config.get('chat_id'):
+                errors.append("Telegram chat ID is required when Telegram is enabled")
+        
+        # Validate WhatsApp configuration  
+        if config.whatsapp_enabled:
+            method = config.whatsapp_config.get('method', 'business_api')
+            if method == 'business_api':
+                if not config.whatsapp_config.get('access_token'):
+                    errors.append("WhatsApp access token is required for Business API")
+                if not config.whatsapp_config.get('phone_number_id'):
+                    errors.append("WhatsApp phone number ID is required for Business API")
+            if not config.whatsapp_config.get('recipient'):
+                errors.append("WhatsApp recipient is required when WhatsApp is enabled")
+        
+        # Check if at least one service is enabled
+        if config.enabled and not (config.telegram_enabled or config.whatsapp_enabled):
+            warnings.append("Notifications are enabled but no services are configured")
+        
+        # Validate preferences
+        preferences = config.preferences
+        min_confidence = preferences.get('min_confidence', 0.7)
+        if not 0 <= min_confidence <= 1:
+            errors.append("Minimum confidence must be between 0 and 1")
+        
+        # Validate delivery configuration
+        delivery = config.delivery_config
+        max_retries = delivery.get('max_retries', 3)
+        if max_retries < 0:
+            errors.append("Maximum retries must be non-negative")
+        
+        queue_size = delivery.get('queue_size', 100)
+        if queue_size <= 0:
+            errors.append("Queue size must be positive")
+        
+        return {
+            'valid': len(errors) == 0,
+            'errors': errors,
+            'warnings': warnings
+        }
+    
+    def get_config(self) -> NotificationConfig:
+        """
+        Get current configuration, loading if necessary.
+        
+        Returns:
+            NotificationConfig: Current configuration
+        """
+        if self._config is None:
+            self._config = self.load_config()
+        return self._config
+    
+    def create_default_config_template(self) -> Dict[str, Any]:
+        """
+        Create a default configuration template.
+        
+        Returns:
+            dict: Default configuration template
+        """
+        return {
+            "notifications": {
+                "enabled": True,
+                "telegram": {
+                    "enabled": True,
+                    "bot_token": "${TELEGRAM_BOT_TOKEN}",
+                    "chat_id": "${TELEGRAM_CHAT_ID}",
+                    "rate_limit": 30
+                },
+                "whatsapp": {
+                    "enabled": True,
+                    "method": "business_api",
+                    "access_token": "${WHATSAPP_ACCESS_TOKEN}",
+                    "phone_number_id": "${WHATSAPP_PHONE_ID}",
+                    "recipient": "${WHATSAPP_RECIPIENT}"
+                },
+                "preferences": {
+                    "signal_types": ["BUY", "SELL"],
+                    "min_confidence": 0.7,
+                    "stocks": ["ALL"],
+                    "quiet_hours": {
+                        "enabled": True,
+                        "start": "22:00",
+                        "end": "08:00"
+                    }
+                },
+                "delivery": {
+                    "max_retries": 3,
+                    "retry_delay": 5,
+                    "queue_size": 100,
+                    "batch_size": 5
+                }
+            }
+        }

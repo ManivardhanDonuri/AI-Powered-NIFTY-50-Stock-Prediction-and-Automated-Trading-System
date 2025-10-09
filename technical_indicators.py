@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas_ta as ta
 import numpy as np
 import logging
 import json
@@ -18,18 +17,34 @@ class TechnicalIndicators:
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
     
+    def calculate_rsi(self, prices, period=14):
+        """Calculate RSI manually."""
+        delta = prices.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs))
+        return rsi
+    
+    def calculate_sma(self, prices, period):
+        """Calculate Simple Moving Average."""
+        return prices.rolling(window=period).mean()
+    
     def calculate_indicators(self, data):
         """Calculate RSI and moving averages for a single stock."""
         try:
             if data is None or data.empty:
                 return None
             
+            # Make a copy to avoid modifying original data
+            data = data.copy()
+            
             # Calculate RSI
-            data['RSI'] = ta.rsi(data['Close'], length=self.rsi_period)
+            data['RSI'] = self.calculate_rsi(data['Close'], self.rsi_period)
             
             # Calculate Simple Moving Averages
-            data['SMA_20'] = ta.sma(data['Close'], length=self.sma_short)
-            data['SMA_50'] = ta.sma(data['Close'], length=self.sma_long)
+            data['SMA_20'] = self.calculate_sma(data['Close'], self.sma_short)
+            data['SMA_50'] = self.calculate_sma(data['Close'], self.sma_long)
             
             # Calculate SMA crossover signals
             data['SMA_Crossover'] = np.where(

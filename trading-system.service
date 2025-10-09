@@ -1,0 +1,27 @@
+[Unit]
+Description=Automated Trading System with ML and Notifications
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=your_username
+Group=your_group
+WorkingDirectory=/path/to/your/trading/system
+Environment=PATH=/path/to/your/trading/system/venv/bin
+ExecStart=/path/to/your/trading/system/venv/bin/python trading_service.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=trading-system
+
+# Environment variables for notifications
+Environment=TELEGRAM_BOT_TOKEN=your_bot_token
+Environment=TELEGRAM_CHAT_ID=your_chat_id
+Environment=WHATSAPP_ACCESS_TOKEN=your_whatsapp_token
+Environment=WHATSAPP_PHONE_ID=your_phone_id
+Environment=WHATSAPP_RECIPIENT=your_recipient
+
+[Install]
+WantedBy=multi-user.target

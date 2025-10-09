@@ -1,10 +1,10 @@
 {
     "google_sheets": {
         "service_account_file": "service_account.json",
-        "spreadsheet_id": "1R6OOw4NoVRG0MW3je8-eBRzGl-n3yFKwntlbkM38lo8"
+        "spreadsheet_id": "your_google_sheets_id_here"
     },
     "trading": {
-        "stocks": ["RELIANCE.NS", "TCS.NS", "HDFCBANK.NS"],
+        "stocks": ["RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "HINDUNILVR.NS"],
         "rsi_period": 14,
         "sma_short": 20,
         "sma_long": 50,
@@ -73,4 +73,4 @@
             "batch_size": 5
         }
     }
-} 
+}

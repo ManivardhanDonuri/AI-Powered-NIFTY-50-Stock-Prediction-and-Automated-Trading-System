@@ -16,17 +16,50 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Virtual environments
+# Virtual Environment
 venv/
 env/
 ENV/
 env.bak/
 venv.bak/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Credentials and Sensitive Files
+service_account.json
+*.key
+*.pem
+*.p12
+config_local.json
+
+# Logs
+*.log
+logs/
+trading_system.log
+trading_scheduler.log
+trading_service.log
+
+# ML Models and Data
+models/
+scalers/
+*.h5
+*.pkl
+*.joblib
+
+# Jupyter Notebooks
+.ipynb_checkpoints
 
 # IDE
 .vscode/
@@ -35,34 +68,59 @@ venv.bak/
 *.swo
 *~
 
-# Logs
-*.log
-logs/
-
-# Data files
-*.csv
-*.xlsx
-*.json
-!config.json
-!example_service_account.json
-
-# Charts and images
-*.png
-*.jpg
-*.jpeg
-*.pdf
-
-# Sensitive files
-service_account.json
-.env
-secrets.json
-
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
+# Trading Data
+*.csv
+data/
+historical_data/
+
+# Temporary Files
 temp/
-tmp/ 
+tmp/
+*.tmp
+
+# Images and Charts (keep some for documentation)
+charts/
+plots/
+
+# Frontend specific
+trading-frontend/node_modules/
+trading-frontend/.next/
+trading-frontend/.env.local
+trading-frontend/.env.production
+trading-frontend/tsconfig.tsbuildinfo
+trading-frontend/api/node_modules/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache
+.cache/
+.pytest_cache/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Streamlit
+.streamlit/
+
+# Message Queue Persistence
+message_queue.pkl
+
+# WhatsApp Session
+whatsapp_session/

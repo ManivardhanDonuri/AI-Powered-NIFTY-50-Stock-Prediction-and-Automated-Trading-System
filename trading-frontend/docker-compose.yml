@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  trading-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3001/api
+      - NEXT_PUBLIC_WS_URL=ws://localhost:3001
+      - NEXT_PUBLIC_APP_NAME=NIFTY 50 ML Trading System
+      - NEXT_PUBLIC_ENABLE_TELEGRAM=true
+      - NEXT_PUBLIC_ENABLE_PWA=true
+    restart: unless-stopped
+    depends_on:
+      - trading-backend
+    networks:
+      - trading-network
+
+  trading-backend:
+    # This would be your Python trading system
+    # build: ../trading-backend
+    image: trading-backend:latest
+    ports:
+      - "3001:3001"
+    environment:
+      - PYTHONPATH=/app
+      - FLASK_ENV=production
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  trading-data:
