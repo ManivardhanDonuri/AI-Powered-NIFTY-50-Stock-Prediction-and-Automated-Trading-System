@@ -145,8 +145,16 @@ export default function SystemPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">System Control</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              System Control
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               Monitor and control your trading system
             </p>
           </div>
@@ -190,7 +198,12 @@ export default function SystemPage() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">System Status</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  System Status
+                </p>
                 <p className={`text-2xl font-bold ${getStatusColor(systemStatus.running)}`}>
                   {systemStatus.running ? 'Running' : 'Stopped'}
                 </p>
@@ -208,8 +221,16 @@ export default function SystemPage() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Uptime</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Uptime
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {formatUptime(systemStatus.uptime)}
                 </p>
               </div>
@@ -222,8 +243,16 @@ export default function SystemPage() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Services</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Active Services
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {Object.values(systemStatus.services).filter(Boolean).length}/4
                 </p>
               </div>
@@ -236,8 +265,16 @@ export default function SystemPage() {
           <Card>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Last Update</p>
-                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Last Update
+                </p>
+                <p 
+                  className="text-lg font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {systemStatus.lastUpdate.toLocaleTimeString()}
                 </p>
               </div>
@@ -251,14 +288,14 @@ export default function SystemPage() {
         {/* Alerts */}
         {systemStatus.errors.length > 0 && (
           <Alert
-            type="error"
+            variant="error"
             title="System Errors"
             message={systemStatus.errors.join(', ')}
           />
         )}
         {systemStatus.warnings.length > 0 && (
           <Alert
-            type="warning"
+            variant="warning"
             title="System Warnings"
             message={systemStatus.warnings.join(', ')}
           />
@@ -267,7 +304,10 @@ export default function SystemPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Performance Metrics */}
           <Card>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <h3 
+              className="text-xl font-semibold mb-6"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               Performance Metrics
             </h3>
             
@@ -275,11 +315,24 @@ export default function SystemPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Cpu className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">CPU Usage</span>
+                  <span 
+                    className="text-sm font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    CPU Usage
+                  </span>
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{systemStatus.performance.cpu}%</span>
+                <span 
+                  className="text-sm"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {systemStatus.performance.cpu}%
+                </span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="w-full rounded-full h-2"
+                style={{ backgroundColor: 'var(--color-border)' }}
+              >
                 <div 
                   className={`h-2 rounded-full ${getPerformanceColor(systemStatus.performance.cpu)}`}
                   style={{ width: `${systemStatus.performance.cpu}%` }}
@@ -289,11 +342,24 @@ export default function SystemPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Database className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">Memory Usage</span>
+                  <span 
+                    className="text-sm font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Memory Usage
+                  </span>
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{systemStatus.performance.memory}%</span>
+                <span 
+                  className="text-sm"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {systemStatus.performance.memory}%
+                </span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="w-full rounded-full h-2"
+                style={{ backgroundColor: 'var(--color-border)' }}
+              >
                 <div 
                   className={`h-2 rounded-full ${getPerformanceColor(systemStatus.performance.memory)}`}
                   style={{ width: `${systemStatus.performance.memory}%` }}
@@ -303,11 +369,24 @@ export default function SystemPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <HardDrive className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">Disk Usage</span>
+                  <span 
+                    className="text-sm font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Disk Usage
+                  </span>
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{systemStatus.performance.disk}%</span>
+                <span 
+                  className="text-sm"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {systemStatus.performance.disk}%
+                </span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="w-full rounded-full h-2"
+                style={{ backgroundColor: 'var(--color-border)' }}
+              >
                 <div 
                   className={`h-2 rounded-full ${getPerformanceColor(systemStatus.performance.disk)}`}
                   style={{ width: `${systemStatus.performance.disk}%` }}
@@ -318,16 +397,26 @@ export default function SystemPage() {
 
           {/* Service Status */}
           <Card>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            <h3 
+              className="text-xl font-semibold mb-6"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               Service Status
             </h3>
             
             <div className="space-y-4">
               {Object.entries(systemStatus.services).map(([service, status]) => (
-                <div key={service} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div 
+                  key={service} 
+                  className="flex items-center justify-between p-3 rounded-lg"
+                  style={{ backgroundColor: 'var(--color-surface)' }}
+                >
                   <div className="flex items-center space-x-3">
                     <div className={`w-3 h-3 rounded-full ${status ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                    <span className="font-medium text-gray-900 dark:text-white capitalize">
+                    <span 
+                      className="font-medium capitalize"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
                       {service.replace(/([A-Z])/g, ' $1').trim()}
                     </span>
                   </div>
@@ -343,7 +432,10 @@ export default function SystemPage() {
         {/* System Logs */}
         <Card>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h3 
+              className="text-xl font-semibold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               System Logs
             </h3>
             <Button variant="outline" size="sm">
@@ -351,7 +443,13 @@ export default function SystemPage() {
             </Button>
           </div>
           
-          <div className="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 h-64 overflow-y-auto">
+          <div 
+            className="rounded-lg p-4 h-64 overflow-y-auto"
+            style={{ 
+              backgroundColor: 'var(--color-text-primary)', 
+              color: 'var(--color-success)' 
+            }}
+          >
             <div className="font-mono text-sm space-y-1">
               {logs.slice(-20).map((log, index) => (
                 <div key={index} className="text-green-400">

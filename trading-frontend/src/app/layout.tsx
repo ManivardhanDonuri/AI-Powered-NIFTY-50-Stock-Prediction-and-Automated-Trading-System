@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from 'next-themes';
+import { EnhancedThemeProvider } from '@/components/providers/ThemeProvider';
 import './globals.css';
 import { APP_NAME, APP_DESCRIPTION } from '@/utils/constants';
 import PWAInstall from '@/components/ui/PWAInstall';
+
 import { Suspense } from 'react';
 
 const inter = Inter({
@@ -41,18 +42,67 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  var resolvedTheme = theme === 'system' || !theme ? systemTheme : theme;
+                  
+                  if (['light', 'dark'].includes(resolvedTheme)) {
+                    document.documentElement.setAttribute('data-theme', resolvedTheme);
+                    document.documentElement.classList.add('theme-' + resolvedTheme);
+                    
+                    // Force immediate style application
+                    if (resolvedTheme === 'light') {
+                      document.documentElement.style.backgroundColor = '#ffffff';
+                      document.documentElement.style.color = '#0f172a';
+                      document.body.style.backgroundColor = '#ffffff';
+                      document.body.style.color = '#0f172a';
+                    } else {
+                      document.documentElement.style.backgroundColor = '#0f172a';
+                      document.documentElement.style.color = '#f8fafc';
+                      document.body.style.backgroundColor = '#0f172a';
+                      document.body.style.color = '#f8fafc';
+                    }
+                  } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    document.documentElement.classList.add('theme-light');
+                    document.documentElement.style.backgroundColor = '#ffffff';
+                    document.documentElement.style.color = '#0f172a';
+                    document.body.style.backgroundColor = '#ffffff';
+                    document.body.style.color = '#0f172a';
+                  }
+                } catch (e) {
+                  document.documentElement.setAttribute('data-theme', 'light');
+                  document.documentElement.classList.add('theme-light');
+                  document.documentElement.style.backgroundColor = '#ffffff';
+                  document.documentElement.style.color = '#0f172a';
+                  document.body.style.backgroundColor = '#ffffff';
+                  document.body.style.color = '#0f172a';
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
+        <EnhancedThemeProvider
+          attribute="data-theme"
+          defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
+          disableTransitionOnChange={false}
+          storageKey="theme"
         >
           {children}
           <Suspense fallback={null}>
             <PWAInstall />
           </Suspense>
-        </ThemeProvider>
+
+        </EnhancedThemeProvider>
         
         <script
           dangerouslySetInnerHTML={{

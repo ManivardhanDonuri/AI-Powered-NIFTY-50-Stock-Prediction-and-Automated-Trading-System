@@ -136,9 +136,9 @@ export default function HistoryPage() {
 
   const getSignalColor = (type: string) => {
     switch (type) {
-      case 'BUY': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'SELL': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      case 'BUY': return { backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)' };
+      case 'SELL': return { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-error)' };
+      default: return { backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)' };
     }
   };
 
@@ -148,8 +148,16 @@ export default function HistoryPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Trading History</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Trading History
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               View and analyze your trading signals and execution history
             </p>
           </div>
@@ -161,7 +169,13 @@ export default function HistoryPage() {
             <div className="relative">
               <select
                 onChange={(e) => handleExport(e.target.value)}
-                className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="appearance-none rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2"
+                style={{
+                  backgroundColor: 'var(--color-input-background)',
+                  borderColor: 'var(--color-input-border)',
+                  color: 'var(--color-text-primary)',
+                  '--focus-ring-color': 'var(--color-primary)',
+                } as React.CSSProperties}
                 defaultValue=""
               >
                 <option value="" disabled>Export</option>
@@ -184,7 +198,13 @@ export default function HistoryPage() {
                 placeholder="Search signals..."
                 value={filters.searchQuery}
                 onChange={(e) => handleFilterChange('searchQuery', e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
+                style={{
+                  backgroundColor: 'var(--color-input-background)',
+                  borderColor: 'var(--color-input-border)',
+                  color: 'var(--color-text-primary)',
+                  '--focus-ring-color': 'var(--color-primary)',
+                } as React.CSSProperties}
               />
             </div>
 
@@ -197,7 +217,13 @@ export default function HistoryPage() {
             <select
               value={filters.signalType}
               onChange={(e) => handleFilterChange('signalType', e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
+              style={{
+                backgroundColor: 'var(--color-input-background)',
+                borderColor: 'var(--color-input-border)',
+                color: 'var(--color-text-primary)',
+                '--focus-ring-color': 'var(--color-primary)',
+              } as React.CSSProperties}
             >
               {SIGNAL_TYPES.map(type => (
                 <option key={type.value} value={type.value}>{type.label}</option>
@@ -225,8 +251,18 @@ export default function HistoryPage() {
           <Card padding="md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Signals</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{filteredSignals.length}</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Total Signals
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  {filteredSignals.length}
+                </p>
               </div>
               <Activity className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
@@ -235,7 +271,12 @@ export default function HistoryPage() {
           <Card padding="md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Buy Signals</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Buy Signals
+                </p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {filteredSignals.filter(s => s.type === 'BUY').length}
                 </p>
@@ -247,7 +288,12 @@ export default function HistoryPage() {
           <Card padding="md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Sell Signals</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Sell Signals
+                </p>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   {filteredSignals.filter(s => s.type === 'SELL').length}
                 </p>
@@ -259,7 +305,12 @@ export default function HistoryPage() {
           <Card padding="md">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Confidence</p>
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Avg Confidence
+                </p>
                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {filteredSignals.length > 0 
                     ? Math.round(filteredSignals.reduce((acc, s) => acc + s.confidence, 0) / filteredSignals.length * 100)
@@ -274,7 +325,10 @@ export default function HistoryPage() {
         {/* Signals Table */}
         <Card>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h3 
+              className="text-xl font-semibold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               Trading Signals ({filteredSignals.length})
             </h3>
             <div className="flex items-center space-x-4">
@@ -298,20 +352,75 @@ export default function HistoryPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Select</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Time</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Symbol</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Signal</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Price</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Confidence</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Reasoning</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Indicators</th>
+                <tr 
+                  className="border-b"
+                  style={{ borderColor: 'var(--color-border)' }}
+                >
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Select
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Time
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Symbol
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Signal
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Price
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Confidence
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Reasoning
+                  </th>
+                  <th 
+                    className="text-left py-3 px-4 font-medium"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Indicators
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredSignals.map((signal, index) => (
-                  <tr key={signal.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <tr 
+                    key={signal.id} 
+                    className="border-b"
+                    style={{ 
+                      borderColor: 'var(--color-border)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
                     <td className="py-4 px-4">
                       <input
                         type="checkbox"
@@ -321,34 +430,58 @@ export default function HistoryPage() {
                       />
                     </td>
                     <td className="py-4 px-4">
-                      <div className="text-sm text-gray-900 dark:text-white">
+                      <div 
+                        className="text-sm"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
                         {signal.timestamp.toLocaleDateString()}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div 
+                        className="text-xs"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
                         {signal.timestamp.toLocaleTimeString()}
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="font-medium text-gray-900 dark:text-white">{signal.symbol}</div>
+                      <div 
+                        className="font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {signal.symbol}
+                      </div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getSignalColor(signal.type)}`}>
+                      <div 
+                        className="inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium"
+                        style={getSignalColor(signal.type)}
+                      >
                         {getSignalIcon(signal.type)}
                         <span>{signal.type}</span>
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="font-medium text-gray-900 dark:text-white">
+                      <div 
+                        className="font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
                         {formatCurrency(signal.price)}
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      <div 
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
                         {Math.round(signal.confidence * 100)}%
                       </div>
                     </td>
                     <td className="py-4 px-4 max-w-xs">
-                      <div className="text-sm text-gray-600 dark:text-gray-400 truncate" title={signal.reasoning}>
+                      <div 
+                        className="text-sm truncate" 
+                        title={signal.reasoning}
+                        style={{ color: 'var(--color-text-secondary)' }}
+                      >
                         {signal.reasoning}
                       </div>
                     </td>

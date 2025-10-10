@@ -1,24 +1,47 @@
 'use client';
 
 import { forwardRef } from 'react';
-
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
-}
+import { cn } from '@/utils/cn';
+import { CardProps } from '@/types/theme';
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ children, padding = 'md', className = '', ...props }, ref) => {
-    const baseClasses = 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700';
+  ({ children, variant = 'default', padding = 'md', className = '', ...props }, ref) => {
+    const baseClasses = [
+      'bg-[var(--color-card-background)]',
+      'transition-all duration-200 ease-in-out',
+      'overflow-hidden'
+    ].join(' ');
     
-    const paddings = {
-      none: '',
-      sm: 'p-4',
-      md: 'p-6',
-      lg: 'p-8',
+    const variants = {
+      default: [
+        'border border-[var(--color-card-border)]',
+        'rounded-[var(--radius-xl)]',
+        'shadow-[var(--shadow-sm)]'
+      ].join(' '),
+      
+      elevated: [
+        'border border-[var(--color-card-border)]',
+        'rounded-[var(--radius-xl)]',
+        'shadow-[var(--shadow-lg)]',
+        'hover:shadow-[var(--shadow-xl)]'
+      ].join(' '),
+      
+      outlined: [
+        'border-2 border-[var(--color-border)]',
+        'rounded-[var(--radius-xl)]',
+        'shadow-none',
+        'hover:border-[var(--color-border-hover)]'
+      ].join(' ')
     };
 
-    const classes = `${baseClasses} ${paddings[padding]} ${className}`;
+    const paddings = {
+      none: '',
+      sm: 'p-[var(--spacing-md)]',
+      md: 'p-[var(--spacing-lg)]',
+      lg: 'p-[var(--spacing-xl)]',
+    };
+
+    const classes = cn(baseClasses, variants[variant], paddings[padding], className);
 
     return (
       <div ref={ref} className={classes} {...props}>

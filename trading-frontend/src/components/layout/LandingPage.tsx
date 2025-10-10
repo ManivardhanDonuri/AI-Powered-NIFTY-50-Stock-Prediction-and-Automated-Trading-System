@@ -43,7 +43,13 @@ export default function LandingPage({ onEnterDashboard }: LandingPageProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+    <div 
+      className="min-h-screen"
+      style={{
+        background: 'var(--color-background)',
+        color: 'var(--color-text-primary)',
+      }}
+    >
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
@@ -73,7 +79,8 @@ export default function LandingPage({ onEnterDashboard }: LandingPageProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed"
+              style={{ color: 'var(--color-text-secondary)' }}
             >
               {APP_DESCRIPTION}
             </motion.p>
@@ -117,10 +124,16 @@ export default function LandingPage({ onEnterDashboard }: LandingPageProps) {
           transition={{ duration: 0.8, delay: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
             Powerful Trading Features
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p 
+            className="text-lg max-w-2xl mx-auto"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
             Everything you need for successful algorithmic trading in one comprehensive platform
           </p>
         </motion.div>
@@ -132,17 +145,34 @@ export default function LandingPage({ onEnterDashboard }: LandingPageProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1 + index * 0.1 }}
-              className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600"
+              className="group relative rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border"
+              style={{
+                backgroundColor: 'var(--color-card-background)',
+                borderColor: 'var(--color-card-border)',
+                boxShadow: 'var(--shadow-lg)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-card-border)';
+              }}
             >
               <div className="flex items-center mb-4">
                 <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl group-hover:scale-110 transition-transform duration-200">
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+              <h3 
+                className="text-xl font-semibold mb-3"
+                style={{ color: 'var(--color-text-primary)' }}
+              >
                 {feature.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p 
+                className="leading-relaxed"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
                 {feature.description}
               </p>
             </motion.div>
@@ -151,9 +181,18 @@ export default function LandingPage({ onEnterDashboard }: LandingPageProps) {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+      <div 
+        className="border-t backdrop-blur-sm"
+        style={{
+          borderColor: 'var(--color-border)',
+          backgroundColor: 'var(--color-surface)',
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-600 dark:text-gray-400">
+          <div 
+            className="text-center"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             <p>&copy; 2024 {APP_NAME}. Built with Next.js and TypeScript.</p>
           </div>
         </div>

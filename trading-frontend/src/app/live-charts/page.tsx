@@ -157,10 +157,17 @@ function LiveChartsContent() {
   }, []);
 
   return (
-    <div className="h-full bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
+    <div 
+      className="h-full flex flex-col overflow-hidden"
+      style={{ backgroundColor: 'var(--color-background)' }}
+    >
       {/* Top Bar */}
       <motion.div
-        className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between"
+        className="px-4 py-3 flex items-center justify-between border-b"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          borderColor: 'var(--color-border)',
+        }}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -171,19 +178,41 @@ function LiveChartsContent() {
           <div className="relative stock-dropdown">
             <motion.button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 border"
+              style={{
+                backgroundColor: 'var(--color-card-background)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-primary)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-border)';
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex items-center space-x-2">
                 <div className="text-left">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">{currentStock.displayName || currentStock.symbol}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-32">{currentStock.name}</div>
+                  <div 
+                    className="text-sm font-semibold"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    {currentStock.displayName || currentStock.symbol}
+                  </div>
+                  <div 
+                    className="text-xs truncate max-w-32"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    {currentStock.name}
+                  </div>
                 </div>
               </div>
               <ChevronDown
                 size={16}
-                className={`text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                style={{ color: 'var(--color-text-muted)' }}
               />
             </motion.button>
 
@@ -194,10 +223,23 @@ function LiveChartsContent() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 overflow-hidden"
+                className="absolute top-full left-0 mt-2 w-80 rounded-lg shadow-lg z-50 overflow-hidden border"
+                style={{
+                  backgroundColor: 'var(--color-card-background)',
+                  borderColor: 'var(--color-border)',
+                  boxShadow: 'var(--shadow-xl)'
+                }}
               >
-                <div className="p-3 border-b border-gray-100 dark:border-gray-700">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Stock</div>
+                <div 
+                  className="p-3 border-b"
+                  style={{ borderColor: 'var(--color-border)' }}
+                >
+                  <div 
+                    className="text-sm font-medium mb-2"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
+                    Select Stock
+                  </div>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {availableStocks.map((stock, index) => (
@@ -207,16 +249,46 @@ function LiveChartsContent() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-b-0 ${selectedStock.symbol === stock.symbol ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800' : ''
-                        }`}
+                      className={`w-full px-4 py-3 text-left transition-colors border-b last:border-b-0`}
+                      style={{
+                        backgroundColor: selectedStock.symbol === stock.symbol 
+                          ? 'rgba(59, 130, 246, 0.1)' 
+                          : 'transparent',
+                        borderColor: 'var(--color-border)',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedStock.symbol !== stock.symbol) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedStock.symbol !== stock.symbol) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }
+                      }}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-medium text-gray-900 dark:text-white">{stock.displayName}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{stock.name}</div>
+                          <div 
+                            className="font-medium"
+                            style={{ color: 'var(--color-text-primary)' }}
+                          >
+                            {stock.displayName}
+                          </div>
+                          <div 
+                            className="text-sm truncate"
+                            style={{ color: 'var(--color-text-secondary)' }}
+                          >
+                            {stock.name}
+                          </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-medium text-gray-900 dark:text-white">₹{(stock.price || stock.currentPrice).toLocaleString()}</div>
+                          <div 
+                            className="font-medium"
+                            style={{ color: 'var(--color-text-primary)' }}
+                          >
+                            ₹{(stock.price || stock.currentPrice).toLocaleString()}
+                          </div>
                           <div className={`text-sm flex items-center ${stock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {stock.change >= 0 ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
                             {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
@@ -242,7 +314,10 @@ function LiveChartsContent() {
             transition={{ duration: 0.3 }}
             className="flex items-center space-x-4"
           >
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div 
+              className="text-2xl font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               ₹{(currentStock.price || currentStock.currentPrice).toLocaleString()}
             </div>
             <div className={`flex items-center space-x-1 ${currentStock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -258,7 +333,8 @@ function LiveChartsContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400"
+            className="flex items-center space-x-4 text-sm"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
             <span>H: ₹{(currentStock.high || 25118.30).toLocaleString()}</span>
             <span>L: ₹{(currentStock.low || 24987.45).toLocaleString()}</span>
@@ -270,7 +346,12 @@ function LiveChartsContent() {
         <div className="flex items-center space-x-6">
           {marketIndices.map((index) => (
             <div key={index.name} className="text-sm">
-              <div className="font-medium text-gray-900 dark:text-white">{index.name}</div>
+              <div 
+                className="font-medium"
+                style={{ color: 'var(--color-text-primary)' }}
+              >
+                {index.name}
+              </div>
               <div className={`flex items-center space-x-1 ${index.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 <span>{index.value.toLocaleString()}</span>
                 <span>({index.changePercent.toFixed(2)}%)</span>
@@ -295,15 +376,22 @@ function LiveChartsContent() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
         <motion.div
-          className={`bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${isMobile ? 'hidden' : sidebarCollapsed ? 'w-16' : 'w-64'
+          className={`flex flex-col transition-all duration-300 border-r ${isMobile ? 'hidden' : sidebarCollapsed ? 'w-16' : 'w-64'
             }`}
+          style={{
+            backgroundColor: 'var(--color-surface)',
+            borderColor: 'var(--color-border)',
+          }}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
           {/* Drawing Tools */}
           <div className="p-4">
-            <h3 className={`font-medium text-gray-900 dark:text-white mb-3 ${sidebarCollapsed ? 'hidden' : 'block'}`}>
+            <h3 
+              className={`font-medium mb-3 ${sidebarCollapsed ? 'hidden' : 'block'}`}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               Drawing Tools
             </h3>
             <div className="space-y-2">
@@ -314,10 +402,31 @@ function LiveChartsContent() {
                     console.log(`Switching to drawing tool: ${tool.id}`);
                     setSelectedTool(tool.id);
                   }}
-                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 ${selectedTool === tool.id
-                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                  className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 border"
+                  style={{
+                    backgroundColor: selectedTool === tool.id 
+                      ? 'rgba(59, 130, 246, 0.1)' 
+                      : 'transparent',
+                    borderColor: selectedTool === tool.id 
+                      ? 'rgba(59, 130, 246, 0.2)' 
+                      : 'transparent',
+                    color: selectedTool === tool.id 
+                      ? 'var(--color-primary)' 
+                      : 'var(--color-text-secondary)',
+                    boxShadow: selectedTool === tool.id ? 'var(--shadow-sm)' : 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedTool !== tool.id) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedTool !== tool.id) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    }
+                  }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   animate={selectedTool === tool.id ? { scale: [1, 1.05, 1] } : {}}
@@ -338,8 +447,14 @@ function LiveChartsContent() {
           </div>
 
           {/* Chart Types */}
-          <div className="p-4 border-t border-gray-200">
-            <h3 className={`font-medium text-gray-900 dark:text-white mb-3 ${sidebarCollapsed ? 'hidden' : 'block'}`}>
+          <div 
+            className="p-4 border-t"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            <h3 
+              className={`font-medium mb-3 ${sidebarCollapsed ? 'hidden' : 'block'}`}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               Chart Types
             </h3>
             <div className="space-y-2">
@@ -347,10 +462,30 @@ function LiveChartsContent() {
                 <motion.button
                   key={type.id}
                   onClick={() => setSelectedChartType(type.id)}
-                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${selectedChartType === type.id
-                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                  className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors border"
+                  style={{
+                    backgroundColor: selectedChartType === type.id 
+                      ? 'rgba(59, 130, 246, 0.1)' 
+                      : 'transparent',
+                    borderColor: selectedChartType === type.id 
+                      ? 'rgba(59, 130, 246, 0.2)' 
+                      : 'transparent',
+                    color: selectedChartType === type.id 
+                      ? 'var(--color-primary)' 
+                      : 'var(--color-text-secondary)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedChartType !== type.id) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedChartType !== type.id) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    }
+                  }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -362,8 +497,14 @@ function LiveChartsContent() {
           </div>
 
           {/* Chart Controls */}
-          <div className="p-4 border-t border-gray-200">
-            <h3 className={`font-medium text-gray-900 dark:text-white mb-3 ${sidebarCollapsed ? 'hidden' : 'block'}`}>
+          <div 
+            className="p-4 border-t"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
+            <h3 
+              className={`font-medium mb-3 ${sidebarCollapsed ? 'hidden' : 'block'}`}
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               Controls
             </h3>
             <div className="space-y-2">
@@ -372,7 +513,16 @@ function LiveChartsContent() {
                   // This will be handled by the chart component
                   console.log('Zoom In clicked');
                 }}
-                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors"
+                style={{ color: 'var(--color-text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -384,7 +534,16 @@ function LiveChartsContent() {
                   // This will be handled by the chart component
                   console.log('Zoom Out clicked');
                 }}
-                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors"
+                style={{ color: 'var(--color-text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -396,7 +555,16 @@ function LiveChartsContent() {
                   // This will be handled by the chart component
                   console.log('Reset Zoom clicked');
                 }}
-                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors"
+                style={{ color: 'var(--color-text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -407,10 +575,22 @@ function LiveChartsContent() {
           </div>
 
           {/* Collapse Button */}
-          <div className="mt-auto p-4 border-t border-gray-200">
+          <div 
+            className="mt-auto p-4 border-t"
+            style={{ borderColor: 'var(--color-border)' }}
+          >
             <motion.button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="w-full flex items-center justify-center px-3 py-2 rounded-lg transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                e.currentTarget.style.color = 'var(--color-text-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = 'var(--color-text-secondary)';
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -423,7 +603,11 @@ function LiveChartsContent() {
         <div className="flex-1 flex flex-col">
           {/* Timeframe Controls */}
           <motion.div
-            className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between"
+            className="px-4 py-3 flex items-center justify-between border-b"
+            style={{
+              backgroundColor: 'var(--color-surface)',
+              borderColor: 'var(--color-border)',
+            }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
@@ -433,10 +617,30 @@ function LiveChartsContent() {
                 <motion.button
                   key={timeframe}
                   onClick={() => setSelectedTimeframe(timeframe)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedTimeframe === timeframe
-                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors border"
+                  style={{
+                    backgroundColor: selectedTimeframe === timeframe 
+                      ? 'rgba(59, 130, 246, 0.1)' 
+                      : 'transparent',
+                    borderColor: selectedTimeframe === timeframe 
+                      ? 'rgba(59, 130, 246, 0.2)' 
+                      : 'var(--color-border)',
+                    color: selectedTimeframe === timeframe 
+                      ? 'var(--color-primary)' 
+                      : 'var(--color-text-secondary)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedTimeframe !== timeframe) {
+                      e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedTimeframe !== timeframe) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--color-text-secondary)';
+                    }
+                  }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -448,7 +652,8 @@ function LiveChartsContent() {
 
           {/* Chart Container */}
           <motion.div
-            className="flex-1 bg-white dark:bg-gray-900 relative p-4"
+            className="flex-1 relative p-4"
+            style={{ backgroundColor: 'var(--color-background)' }}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.3 }}
@@ -469,15 +674,30 @@ function LiveChartsContent() {
 
         {/* Right Sidebar */}
         <motion.div
-          className="w-80 bg-gray-50 dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col hidden lg:flex"
+          className="w-80 border-l flex flex-col hidden lg:flex"
+          style={{
+            backgroundColor: 'var(--color-surface)',
+            borderColor: 'var(--color-border)'
+          }}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.4 }}
         >
           {/* Watchlist Panel */}
           <div className="p-4">
-            <h3 className="font-medium text-gray-900 dark:text-white mb-3">Watchlist</h3>
-            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <h3 
+              className="font-medium mb-3"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Watchlist
+            </h3>
+            <div 
+              className="rounded-lg border overflow-hidden"
+              style={{
+                backgroundColor: 'var(--color-card-background)',
+                borderColor: 'var(--color-border)',
+              }}
+            >
               <div className="space-y-0">
                 {[
                   ...availableStocks.map(stock => ({
@@ -495,8 +715,23 @@ function LiveChartsContent() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`p-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${selectedStock.displayName === stock.symbol ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : ''
-                      }`}
+                    className={`p-3 border-b last:border-b-0 cursor-pointer transition-colors`}
+                    style={{
+                      borderColor: 'var(--color-border)',
+                      backgroundColor: selectedStock.displayName === stock.symbol 
+                        ? 'rgba(59, 130, 246, 0.1)' 
+                        : 'transparent'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedStock.displayName !== stock.symbol) {
+                        e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedStock.displayName !== stock.symbol) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
                     onClick={() => {
                       if (stock.fullStock) {
                         handleStockSelect(stock.fullStock);
@@ -505,11 +740,26 @@ function LiveChartsContent() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium text-sm text-gray-900 dark:text-white">{stock.symbol}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Vol: {stock.volume}</div>
+                        <div 
+                          className="font-medium text-sm"
+                          style={{ color: 'var(--color-text-primary)' }}
+                        >
+                          {stock.symbol}
+                        </div>
+                        <div 
+                          className="text-xs"
+                          style={{ color: 'var(--color-text-secondary)' }}
+                        >
+                          Vol: {stock.volume}
+                        </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium text-sm text-gray-900 dark:text-white">₹{stock.price.toLocaleString()}</div>
+                        <div 
+                          className="font-medium text-sm"
+                          style={{ color: 'var(--color-text-primary)' }}
+                        >
+                          ₹{stock.price.toLocaleString()}
+                        </div>
                         <div className={`text-xs ${stock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)}%
                         </div>
@@ -523,8 +773,19 @@ function LiveChartsContent() {
 
           {/* Positions Panel */}
           <div className="p-4">
-            <h3 className="font-medium text-gray-900 dark:text-white mb-3">Positions</h3>
-            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+            <h3 
+              className="font-medium mb-3"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Positions
+            </h3>
+            <div 
+              className="rounded-lg border p-3"
+              style={{
+                backgroundColor: 'var(--color-card-background)',
+                borderColor: 'var(--color-border)'
+              }}
+            >
               <div className="space-y-2">
                 {[
                   { symbol: 'NIFTY 50', qty: 50, avgPrice: 24980.25, ltp: 25046.15, pnl: 3294.50 },
@@ -535,10 +796,19 @@ function LiveChartsContent() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-2 bg-gray-50 rounded border"
+                    className="p-2 rounded border"
+                    style={{
+                      backgroundColor: 'var(--color-surface)',
+                      borderColor: 'var(--color-border)'
+                    }}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{position.symbol}</span>
+                      <span 
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {position.symbol}
+                      </span>
                       <span className={`text-sm font-medium ${position.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {position.pnl >= 0 ? '+' : ''}₹{position.pnl.toFixed(2)}
                       </span>

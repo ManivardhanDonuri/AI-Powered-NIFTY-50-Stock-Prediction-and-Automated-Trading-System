@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react';
+import { Bell, X, CheckCircle, AlertTriangle, Info, XCircle, TrendingUp, DollarSign, AlertCircle, Brain, Settings } from 'lucide-react';
 import { notificationService, NotificationData } from '@/services/notifications';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import { cn } from '@/utils/cn';
 
 export default function NotificationCenter() {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -23,28 +26,91 @@ export default function NotificationCenter() {
   }, []);
 
   const getIcon = (type: string, severity: string) => {
-    switch (severity) {
-      case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+    // First check by type for specific icons
+    switch (type) {
+      case 'signal':
+        return <TrendingUp className="w-5 h-5 text-[var(--color-primary)]" />;
+      case 'trade':
+        return <DollarSign className="w-5 h-5 text-[var(--color-success)]" />;
+      case 'training':
+        return <Brain className="w-5 h-5 text-[var(--color-info)]" />;
+      case 'system':
+        return <Settings className="w-5 h-5 text-[var(--color-secondary)]" />;
       case 'error':
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return <AlertCircle className="w-5 h-5 text-[var(--color-error)]" />;
       default:
-        return <Info className="w-5 h-5 text-blue-500" />;
+        // Fallback to severity-based icons
+        switch (severity) {
+          case 'success':
+            return <CheckCircle className="w-5 h-5 text-[var(--color-success)]" />;
+          case 'warning':
+            return <AlertTriangle className="w-5 h-5 text-[var(--color-warning)]" />;
+          case 'error':
+            return <XCircle className="w-5 h-5 text-[var(--color-error)]" />;
+          default:
+            return <Info className="w-5 h-5 text-[var(--color-info)]" />;
+        }
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getNotificationStyles = (type: string, severity: string) => {
+    // Enhanced theme-aware styling with proper contrast ratios
+    const baseStyles = 'border-l-4 transition-all duration-200 ease-in-out hover:shadow-[var(--shadow-md)]';
+    
     switch (severity) {
       case 'success':
-        return 'border-l-green-500 bg-green-50 dark:bg-green-900/20';
+        return cn(
+          baseStyles,
+          'border-l-[var(--color-success)] bg-[var(--color-success)]/5',
+          'hover:bg-[var(--color-success)]/10'
+        );
       case 'warning':
-        return 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
+        return cn(
+          baseStyles,
+          'border-l-[var(--color-warning)] bg-[var(--color-warning)]/5',
+          'hover:bg-[var(--color-warning)]/10'
+        );
       case 'error':
-        return 'border-l-red-500 bg-red-50 dark:bg-red-900/20';
+        return cn(
+          baseStyles,
+          'border-l-[var(--color-error)] bg-[var(--color-error)]/5',
+          'hover:bg-[var(--color-error)]/10'
+        );
+      case 'info':
       default:
-        return 'border-l-blue-500 bg-blue-50 dark:bg-blue-900/20';
+        return cn(
+          baseStyles,
+          'border-l-[var(--color-info)] bg-[var(--color-info)]/5',
+          'hover:bg-[var(--color-info)]/10'
+        );
+    }
+  };
+
+  const getSeverityBadgeStyles = (severity: string) => {
+    const baseStyles = 'text-xs font-medium px-2 py-1 rounded-[var(--radius-sm)] border';
+    
+    switch (severity) {
+      case 'success':
+        return cn(
+          baseStyles,
+          'bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20'
+        );
+      case 'warning':
+        return cn(
+          baseStyles,
+          'bg-[var(--color-warning)]/10 text-[var(--color-warning)] border-[var(--color-warning)]/20'
+        );
+      case 'error':
+        return cn(
+          baseStyles,
+          'bg-[var(--color-error)]/10 text-[var(--color-error)] border-[var(--color-error)]/20'
+        );
+      case 'info':
+      default:
+        return cn(
+          baseStyles,
+          'bg-[var(--color-info)]/10 text-[var(--color-info)] border-[var(--color-info)]/20'
+        );
     }
   };
 
@@ -67,23 +133,29 @@ export default function NotificationCenter() {
   return (
     <div className="relative">
       {/* Notification Bell */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        className="relative p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+            className="absolute -top-1 -right-1 bg-[var(--color-error)] text-white text-xs rounded-full min-w-[20px] h-5 flex items-center justify-center font-medium shadow-sm border-2 border-[var(--color-background)]"
+            style={{
+              backgroundColor: 'var(--color-error)',
+              color: 'white',
+              fontSize: '11px',
+              lineHeight: '1',
+            }}
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </motion.div>
         )}
-      </motion.button>
+      </Button>
 
       {/* Notification Panel */}
       <AnimatePresence>
@@ -103,81 +175,110 @@ export default function NotificationCenter() {
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="absolute right-0 top-12 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden"
+              className="absolute right-0 top-12 w-96 z-50 max-h-96 overflow-hidden"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Notifications ({notifications.length})
-                </h3>
-                <div className="flex items-center space-x-2">
-                  {notifications.length > 0 && (
-                    <button
-                      onClick={clearNotifications}
-                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Notifications List */}
-              <div className="max-h-80 overflow-y-auto">
-                {notifications.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                    <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>No notifications yet</p>
-                  </div>
-                ) : (
-                  <div className="space-y-0">
-                    {notifications.map((notification, index) => (
-                      <motion.div
-                        key={`${notification.timestamp.getTime()}-${index}`}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className={`p-4 border-l-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${getSeverityColor(notification.severity)}`}
+              <Card variant="elevated" padding="none" className="shadow-[var(--shadow-xl)]">
+                {/* Header */}
+                <div className="flex items-center justify-between p-[var(--spacing-md)] border-b border-[var(--color-border)]">
+                  <h3 className="font-semibold text-[var(--color-text-primary)]">
+                    Notifications ({notifications.length})
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    {notifications.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearNotifications}
+                        className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
                       >
-                        <div className="flex items-start space-x-3">
-                          {getIcon(notification.type, notification.severity)}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                {notification.title}
-                              </h4>
-                              <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                                {formatTime(notification.timestamp)}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {notification.message}
-                            </p>
-                            {notification.symbol && (
-                              <div className="flex items-center space-x-2 mt-2">
-                                <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
-                                  {notification.symbol}
-                                </span>
-                                {notification.price && (
-                                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                                    ₹{notification.price.toFixed(2)}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                        Clear all
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsOpen(false)}
+                      className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                )}
-              </div>
+                </div>
+
+                {/* Notifications List */}
+                <div className="max-h-80 overflow-y-auto" role="list" aria-label="Notifications">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-[var(--color-text-muted)]">
+                      <Bell className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-sm">No notifications yet</p>
+                      <p className="text-xs mt-1 opacity-75">You'll see trading signals and system updates here</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-0">
+                      {notifications.map((notification, index) => (
+                        <motion.div
+                          key={`${notification.timestamp.getTime()}-${index}`}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={cn(
+                            'p-[var(--spacing-md)] border-b border-[var(--color-border)] last:border-b-0 cursor-pointer',
+                            getNotificationStyles(notification.type, notification.severity)
+                          )}
+                          role="listitem"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              // Handle notification click/selection
+                              e.preventDefault();
+                            }
+                          }}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              {getIcon(notification.type, notification.severity)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                                      {notification.title}
+                                    </h4>
+                                    <span className={getSeverityBadgeStyles(notification.severity)}>
+                                      {notification.severity.toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                                    {notification.message}
+                                  </p>
+                                </div>
+                                <span className="text-xs text-[var(--color-text-muted)] flex-shrink-0 mt-0.5">
+                                  {formatTime(notification.timestamp)}
+                                </span>
+                              </div>
+                              {(notification.symbol || notification.price) && (
+                                <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[var(--color-border)]/50">
+                                  {notification.symbol && (
+                                    <span className="text-xs bg-[var(--color-surface)] text-[var(--color-text-secondary)] px-2 py-1 rounded-[var(--radius-sm)] border border-[var(--color-border)]">
+                                      📊 {notification.symbol}
+                                    </span>
+                                  )}
+                                  {notification.price && (
+                                    <span className="text-xs bg-[var(--color-primary)]/10 text-[var(--color-primary)] px-2 py-1 rounded-[var(--radius-sm)] border border-[var(--color-primary)]/20 font-medium">
+                                      💰 ₹{notification.price.toFixed(2)}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Card>
             </motion.div>
           </>
         )}

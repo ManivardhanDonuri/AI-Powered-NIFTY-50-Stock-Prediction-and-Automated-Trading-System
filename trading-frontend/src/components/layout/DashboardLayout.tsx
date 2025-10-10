@@ -13,7 +13,13 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  // Handle mounting to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -29,6 +35,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+
 
   const handleSidebarToggle = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -46,8 +54,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return pathMap[pathname] || 'Live Charts Terminal';
   };
 
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div 
+      className="flex h-screen transition-colors duration-200"
+      style={{
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-text-primary)',
+      }}
+    >
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -61,19 +84,33 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <Header
           title={getPageTitle()}
           onSidebarToggle={handleSidebarToggle}
-          sidebarCollapsed={sidebarCollapsed}
         />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto">
+        <main 
+          className="flex-1 overflow-auto transition-colors duration-200"
+          style={{
+            backgroundColor: 'var(--color-surface)',
+          }}
+        >
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="h-full"
+            className="h-full min-h-full"
+            style={{
+              backgroundColor: 'var(--color-surface)',
+            }}
           >
-            {children}
+            <div 
+              className="h-full p-6"
+              style={{
+                backgroundColor: 'var(--color-surface)',
+              }}
+            >
+              {children}
+            </div>
           </motion.div>
         </main>
       </div>

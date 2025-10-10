@@ -1,38 +1,135 @@
 'use client';
 
 import { forwardRef } from 'react';
+import { cn } from '@/utils/cn';
+import { InputProps as BaseInputProps } from '@/types/theme';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  variant?: 'default' | 'filled' | 'outlined';
+  size?: 'sm' | 'md' | 'lg';
   label?: string;
   error?: string;
   helperText?: string;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, className = '', ...props }, ref) => {
-    const baseClasses = 'w-full px-3 py-2 border rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-    const normalClasses = 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-blue-500';
-    const errorClasses = 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-100 focus:border-red-500 focus:ring-red-500';
+  ({ 
+    variant = 'default', 
+    size = 'md',
+    label, 
+    error, 
+    helperText, 
+    icon, 
+    iconPosition = 'left',
+    className = '', 
+    ...props 
+  }, ref) => {
+    const baseClasses = [
+      'w-full transition-all duration-200 ease-in-out',
+      'focus:outline-none focus:ring-2 focus:ring-offset-1',
+      'disabled:opacity-50 disabled:cursor-not-allowed',
+      'placeholder:text-[var(--color-input-placeholder)]'
+    ].join(' ');
     
-    const classes = `${baseClasses} ${error ? errorClasses : normalClasses} ${className}`;
+    const variants = {
+      default: error ? [
+        'bg-[var(--color-input-background)]',
+        'border border-[var(--color-error)]',
+        'text-[var(--color-text-primary)]',
+        'focus:border-[var(--color-error)]',
+        'focus:ring-[var(--color-error)]',
+        'rounded-[var(--radius-md)]'
+      ].join(' ') : [
+        'bg-[var(--color-input-background)]',
+        'border border-[var(--color-input-border)]',
+        'text-[var(--color-text-primary)]',
+        'focus:border-[var(--color-input-border-focus)]',
+        'focus:ring-[var(--color-input-border-focus)]',
+        'hover:border-[var(--color-border-hover)]',
+        'rounded-[var(--radius-md)]'
+      ].join(' '),
+      
+      filled: error ? [
+        'bg-[var(--color-surface)]',
+        'border border-transparent',
+        'text-[var(--color-text-primary)]',
+        'focus:border-[var(--color-error)]',
+        'focus:ring-[var(--color-error)]',
+        'rounded-[var(--radius-md)]'
+      ].join(' ') : [
+        'bg-[var(--color-surface)]',
+        'border border-transparent',
+        'text-[var(--color-text-primary)]',
+        'focus:border-[var(--color-input-border-focus)]',
+        'focus:ring-[var(--color-input-border-focus)]',
+        'hover:bg-[var(--color-surface-hover)]',
+        'rounded-[var(--radius-md)]'
+      ].join(' '),
+      
+      outlined: error ? [
+        'bg-transparent',
+        'border-2 border-[var(--color-error)]',
+        'text-[var(--color-text-primary)]',
+        'focus:border-[var(--color-error)]',
+        'focus:ring-[var(--color-error)]',
+        'rounded-[var(--radius-md)]'
+      ].join(' ') : [
+        'bg-transparent',
+        'border-2 border-[var(--color-border)]',
+        'text-[var(--color-text-primary)]',
+        'focus:border-[var(--color-input-border-focus)]',
+        'focus:ring-[var(--color-input-border-focus)]',
+        'hover:border-[var(--color-border-hover)]',
+        'rounded-[var(--radius-md)]'
+      ].join(' ')
+    };
+
+    const inputPadding = icon 
+      ? iconPosition === 'left' 
+        ? 'pl-10 pr-3 py-2.5' 
+        : 'pl-3 pr-10 py-2.5'
+      : 'px-3 py-2.5';
+
+    const inputClasses = cn(baseClasses, variants[variant], inputPadding, className);
+
+    const labelClasses = error 
+      ? 'block text-sm font-medium text-[var(--color-error)] mb-1'
+      : 'block text-sm font-medium text-[var(--color-text-secondary)] mb-1';
+
+    const helperTextClasses = error
+      ? 'text-sm text-[var(--color-error)] mt-1'
+      : 'text-sm text-[var(--color-text-muted)] mt-1';
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-0">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className={labelClasses}>
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          className={classes}
-          {...props}
-        />
+        <div className="relative">
+          {icon && (
+            <div className={cn(
+              'absolute inset-y-0 flex items-center pointer-events-none',
+              'text-[var(--color-text-muted)]',
+              iconPosition === 'left' ? 'left-3' : 'right-3'
+            )}>
+              <span className="w-4 h-4">{icon}</span>
+            </div>
+          )}
+          <input
+            ref={ref}
+            className={inputClasses}
+            {...props}
+          />
+        </div>
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className={helperTextClasses}>{error}</p>
         )}
         {helperText && !error && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+          <p className={helperTextClasses}>{helperText}</p>
         )}
       </div>
     );

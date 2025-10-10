@@ -1,40 +1,46 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Menu, User, Sun, Moon } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { useState, useEffect } from 'react';
+import { Menu, User } from 'lucide-react';
 import NotificationCenter from '@/components/ui/NotificationCenter';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 interface HeaderProps {
   title: string;
   onSidebarToggle: () => void;
-  sidebarCollapsed: boolean;
 }
 
-export default function Header({ title, onSidebarToggle, sidebarCollapsed }: HeaderProps) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+export default function Header({ title, onSidebarToggle }: HeaderProps) {
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+    <header 
+      className="px-6 py-4 border-b transition-colors duration-200"
+      style={{
+        backgroundColor: 'var(--color-background)',
+        borderColor: 'var(--color-border)',
+      }}
+    >
       <div className="flex items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
           {/* Mobile Menu Button */}
           <button
             onClick={onSidebarToggle}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="lg:hidden p-2 rounded-lg transition-colors duration-200"
+            style={{
+              '--hover-bg': 'var(--color-surface-hover)',
+            } as React.CSSProperties}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
-            <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <Menu 
+              className="w-5 h-5" 
+              style={{ color: 'var(--color-text-secondary)' }}
+            />
           </button>
 
           {/* Page Title */}
@@ -43,8 +49,16 @@ export default function Header({ title, onSidebarToggle, sidebarCollapsed }: Hea
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h1 
+              className="text-2xl font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {title}
+            </h1>
+            <p 
+              className="text-sm"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -62,30 +76,36 @@ export default function Header({ title, onSidebarToggle, sidebarCollapsed }: Hea
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-green-100 dark:bg-green-900/20 rounded-lg"
+            className="hidden sm:flex items-center space-x-2 px-3 py-2 rounded-lg border"
+            style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.1)', // success color with 10% opacity
+              borderColor: 'rgba(16, 185, 129, 0.2)', // success color with 20% opacity
+            }}
           >
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-green-700 dark:text-green-400">
+            <div 
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ backgroundColor: 'var(--color-success)' }}
+            ></div>
+            <span 
+              className="text-sm font-medium"
+              style={{ color: 'var(--color-success)' }}
+            >
               Market Open
             </span>
           </motion.div>
 
-          {/* Theme Toggle */}
-          {mounted && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              )}
-            </motion.button>
-          )}
+          {/* Enhanced Theme Toggle */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <ThemeToggle 
+              variant="button" 
+              size="md" 
+              aria-label="Toggle theme"
+            />
+          </motion.div>
 
           {/* Notifications */}
           <motion.div
@@ -101,12 +121,26 @@ export default function Header({ title, onSidebarToggle, sidebarCollapsed }: Hea
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.4 }}
-            className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="flex items-center space-x-2 p-2 rounded-lg transition-colors duration-200"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
+            <div 
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{
+                background: `linear-gradient(135deg, var(--color-primary), var(--color-accent))`,
+              }}
+            >
               <User className="w-4 h-4 text-white" />
             </div>
-            <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <span 
+              className="hidden sm:block text-sm font-medium"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               Trader
             </span>
           </motion.button>

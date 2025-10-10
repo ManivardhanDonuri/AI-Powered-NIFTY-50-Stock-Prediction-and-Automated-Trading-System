@@ -1,63 +1,177 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, XCircle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertCircle, XCircle, Info, X, AlertTriangle } from 'lucide-react';
+import Button from '@/components/ui/Button';
+import { cn } from '@/utils/cn';
+import { forwardRef } from 'react';
+import { AlertProps as BaseAlertProps } from '@/types/theme';
 
 interface AlertProps {
-  type?: 'success' | 'warning' | 'error' | 'info';
+  variant: 'success' | 'warning' | 'error' | 'info';
+  size?: 'sm' | 'md' | 'lg';
   title?: string;
   message: string;
+  children?: React.ReactNode;
   dismissible?: boolean;
   onDismiss?: () => void;
+  icon?: React.ReactNode;
   className?: string;
+  'data-testid'?: string;
 }
 
-export default function Alert({
-  type = 'info',
+const Alert = forwardRef<HTMLDivElement, AlertProps>(({
+  variant = 'info',
+  size = 'md',
   title,
   message,
   dismissible = false,
   onDismiss,
   className = '',
-}: AlertProps) {
+  children
+}, ref) => {
   const icons = {
     success: CheckCircle,
-    warning: AlertCircle,
+    warning: AlertTriangle,
     error: XCircle,
     info: Info,
   };
 
-  const styles = {
-    success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200',
-    warning: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200',
-    error: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200',
-    info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
+  const getVariantStyles = (variant: string) => {
+    const baseStyles = 'border transition-all duration-200 ease-in-out';
+    
+    switch (variant) {
+      case 'success':
+        return cn(
+          baseStyles,
+          'bg-[var(--color-success)]/8 border-[var(--color-success)]/25',
+          'text-[var(--color-success)] [&_h4]:text-[var(--color-success)]',
+          '[&_p]:text-[var(--color-success)]/80'
+        );
+      case 'warning':
+        return cn(
+          baseStyles,
+          'bg-[var(--color-warning)]/8 border-[var(--color-warning)]/25',
+          'text-[var(--color-warning)] [&_h4]:text-[var(--color-warning)]',
+          '[&_p]:text-[var(--color-warning)]/80'
+        );
+      case 'error':
+        return cn(
+          baseStyles,
+          'bg-[var(--color-error)]/8 border-[var(--color-error)]/25',
+          'text-[var(--color-error)] [&_h4]:text-[var(--color-error)]',
+          '[&_p]:text-[var(--color-error)]/80'
+        );
+      case 'info':
+      default:
+        return cn(
+          baseStyles,
+          'bg-[var(--color-info)]/8 border-[var(--color-info)]/25',
+          'text-[var(--color-info)] [&_h4]:text-[var(--color-info)]',
+          '[&_p]:text-[var(--color-info)]/80'
+        );
+    }
   };
 
-  const Icon = icons[type];
+  const getSizeStyles = (size: string) => {
+    switch (size) {
+      case 'sm':
+        return 'p-[var(--spacing-sm)] rounded-[var(--radius-md)] text-xs';
+      case 'lg':
+        return 'p-[var(--spacing-lg)] rounded-[var(--radius-xl)] text-base';
+      case 'md':
+      default:
+        return 'p-[var(--spacing-md)] rounded-[var(--radius-lg)] text-sm';
+    }
+  };
+
+  const getIconSize = (size: string) => {
+    switch (size) {
+      case 'sm':
+        return 'w-4 h-4';
+      case 'lg':
+        return 'w-6 h-6';
+      case 'md':
+      default:
+        return 'w-5 h-5';
+    }
+  };
+
+  const Icon = icons[variant];
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (dismissible && onDismiss && (e.key === 'Escape')) {
+      onDismiss();
+    }
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className={`flex items-start p-4 border rounded-lg ${styles[type]} ${className}`}
+      ref={ref}
+      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      role="alert"
+      aria-live="polite"
+      aria-atomic="true"
+      tabIndex={dismissible ? 0 : -1}
+      onKeyDown={handleKeyDown}
+      className={cn(
+        'flex items-start relative focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:ring-offset-2 focus:ring-offset-[var(--color-background)]',
+        getVariantStyles(variant),
+        getSizeStyles(size),
+        className
+      )}
     >
-      <Icon className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
-      <div className="flex-1">
-        {title && (
-          <h4 className="font-medium mb-1">{title}</h4>
-        )}
-        <p className="text-sm">{message}</p>
+      <div className="flex-shrink-0 mt-0.5">
+        <Icon 
+          className={cn(
+            'flex-shrink-0',
+            getIconSize(size)
+          )} 
+          aria-hidden="true"
+        />
       </div>
+      
+      <div className="flex-1 ml-3 min-w-0">
+        {title && (
+          <h4 className={cn(
+            'font-semibold mb-1 leading-tight',
+            size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-base' : 'text-sm'
+          )}>
+            {title}
+          </h4>
+        )}
+        <div className={cn(
+          'leading-relaxed',
+          size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-sm' : 'text-sm'
+        )}>
+          {children ? children : <p>{message}</p>}
+        </div>
+      </div>
+      
       {dismissible && onDismiss && (
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onDismiss}
-          className="ml-3 flex-shrink-0 p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+          className={cn(
+            'ml-3 flex-shrink-0 text-current hover:bg-current/10 focus:bg-current/10',
+            'transition-colors duration-150 ease-in-out',
+            size === 'sm' ? 'p-1' : 'p-1.5'
+          )}
+          aria-label="Dismiss alert"
         >
-          <X className="w-4 h-4" />
-        </button>
+          <X className={cn(
+            size === 'sm' ? 'w-3 h-3' : size === 'lg' ? 'w-5 h-5' : 'w-4 h-4'
+          )} />
+        </Button>
       )}
     </motion.div>
   );
-}
+});
+
+Alert.displayName = 'Alert';
+
+export default Alert;

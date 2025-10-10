@@ -88,19 +88,38 @@ export default function PWAInstall() {
           exit={{ opacity: 0, y: 100 }}
           className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div 
+            className="rounded-lg shadow-xl p-4"
+            style={{
+              backgroundColor: 'var(--color-card-background)',
+              border: '1px solid var(--color-card-border)',
+              boxShadow: 'var(--shadow-xl)'
+            }}
+          >
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                  <Smartphone className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div 
+                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--color-surface)' }}
+                >
+                  <Smartphone 
+                    className="w-5 h-5" 
+                    style={{ color: 'var(--color-primary)' }}
+                  />
                 </div>
               </div>
               
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                <h3 
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   Install Trading System
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p 
+                  className="text-sm mt-1"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
                   Install our app for faster access and offline functionality
                 </p>
                 
@@ -126,7 +145,14 @@ export default function PWAInstall() {
               
               <button
                 onClick={handleDismiss}
-                className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="flex-shrink-0 transition-colors duration-200"
+                style={{ color: 'var(--color-text-muted)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
+                }}
               >
                 <X className="w-4 h-4" />
               </button>

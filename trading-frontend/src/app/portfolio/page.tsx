@@ -139,8 +139,16 @@ export default function PortfolioPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Portfolio</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Portfolio
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               Monitor your portfolio performance and holdings
             </p>
           </div>
@@ -161,8 +169,16 @@ export default function PortfolioPage() {
           <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Value</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Total Value
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {formatCurrency(portfolioSummary.totalValue)}
                 </p>
                 <p className={`text-sm ${getChangeColor(portfolioSummary.totalPnL)}`}>
@@ -179,8 +195,16 @@ export default function PortfolioPage() {
           <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Day Change</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Day Change
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {formatCurrency(portfolioSummary.dayChange)}
                 </p>
                 <p className={`text-sm ${getChangeColor(portfolioSummary.dayChange)}`}>
@@ -201,11 +225,22 @@ export default function PortfolioPage() {
           <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Invested</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Invested
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {formatCurrency(portfolioSummary.totalInvested)}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p 
+                  className="text-sm"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
                   {positions.length} positions
                 </p>
               </div>
@@ -219,11 +254,22 @@ export default function PortfolioPage() {
           <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Available Cash</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  Available Cash
+                </p>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
                   {formatCurrency(portfolioSummary.cash)}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p 
+                  className="text-sm"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
                   Ready to invest
                 </p>
               </div>
@@ -240,7 +286,12 @@ export default function PortfolioPage() {
           <div className="lg:col-span-2">
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Holdings</h3>
+                <h3 
+                  className="text-xl font-semibold"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  Holdings
+                </h3>
                 <Button variant="outline" size="sm">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   View All
@@ -250,14 +301,52 @@ export default function PortfolioPage() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Stock</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Qty</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Avg Price</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Current</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Value</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">P&L</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">%</th>
+                    <tr 
+                      className="border-b"
+                      style={{ borderColor: 'var(--color-border)' }}
+                    >
+                      <th 
+                        className="text-left py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        Stock
+                      </th>
+                      <th 
+                        className="text-right py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        Qty
+                      </th>
+                      <th 
+                        className="text-right py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        Avg Price
+                      </th>
+                      <th 
+                        className="text-right py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        Current
+                      </th>
+                      <th 
+                        className="text-right py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        Value
+                      </th>
+                      <th 
+                        className="text-right py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        P&L
+                      </th>
+                      <th 
+                        className="text-right py-3 px-4 font-medium"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        %
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -265,13 +354,38 @@ export default function PortfolioPage() {
                       <tr key={position.symbol} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <td className="py-4 px-4">
                           <div>
-                            <div className="font-medium text-gray-900 dark:text-white">{position.symbol}</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-32">{position.name}</div>
+                            <div 
+                              className="font-medium"
+                              style={{ color: 'var(--color-text-primary)' }}
+                            >
+                              {position.symbol}
+                            </div>
+                            <div 
+                              className="text-sm truncate max-w-32"
+                              style={{ color: 'var(--color-text-muted)' }}
+                            >
+                              {position.name}
+                            </div>
                           </div>
                         </td>
-                        <td className="text-right py-4 px-4 text-gray-900 dark:text-white">{position.quantity}</td>
-                        <td className="text-right py-4 px-4 text-gray-900 dark:text-white">{formatCurrency(position.avgPrice)}</td>
-                        <td className="text-right py-4 px-4 text-gray-900 dark:text-white">{formatCurrency(position.currentPrice)}</td>
+                        <td 
+                          className="text-right py-4 px-4"
+                          style={{ color: 'var(--color-text-primary)' }}
+                        >
+                          {position.quantity}
+                        </td>
+                        <td 
+                          className="text-right py-4 px-4"
+                          style={{ color: 'var(--color-text-primary)' }}
+                        >
+                          {formatCurrency(position.avgPrice)}
+                        </td>
+                        <td 
+                          className="text-right py-4 px-4"
+                          style={{ color: 'var(--color-text-primary)' }}
+                        >
+                          {formatCurrency(position.currentPrice)}
+                        </td>
                         <td className="text-right py-4 px-4 text-gray-900 dark:text-white">{formatCurrency(position.marketValue)}</td>
                         <td className={`text-right py-4 px-4 ${getChangeColor(position.pnl)}`}>
                           {position.pnl >= 0 ? '+' : ''}{formatCurrency(position.pnl)}

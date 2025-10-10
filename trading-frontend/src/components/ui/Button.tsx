@@ -3,37 +3,101 @@
 import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-
-interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  loading?: boolean;
-  children: React.ReactNode;
-  className?: string;
-  disabled?: boolean;
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
-}
+import { cn } from '@/utils/cn';
+import { ButtonProps } from '@/types/theme';
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', loading = false, children, className = '', disabled, onClick, type = 'button' }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  ({ 
+    variant = 'primary', 
+    size = 'md', 
+    loading = false, 
+    children, 
+    className = '', 
+    disabled, 
+    onClick, 
+    type = 'button',
+    icon 
+  }, ref) => {
+    const baseClasses = [
+      'inline-flex items-center justify-center font-medium',
+      'transition-all duration-200 ease-in-out',
+      'focus:outline-none focus:ring-2 focus:ring-offset-2',
+      'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+      'relative overflow-hidden'
+    ].join(' ');
     
     const variants = {
-      primary: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500 shadow-lg hover:shadow-xl',
-      secondary: 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 focus:ring-gray-500',
-      outline: 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-gray-500',
-      ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:ring-gray-500',
-      danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-lg hover:shadow-xl',
+      primary: [
+        'bg-[var(--color-primary)] text-[var(--color-primary-foreground)]',
+        'hover:bg-[var(--color-primary-hover)]',
+        'focus:ring-[var(--color-primary)]',
+        'shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)]',
+        'border border-transparent'
+      ].join(' '),
+      
+      secondary: [
+        'bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)]',
+        'hover:bg-[var(--color-secondary-hover)]',
+        'focus:ring-[var(--color-secondary)]',
+        'shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]',
+        'border border-transparent'
+      ].join(' '),
+      
+      outline: [
+        'bg-transparent text-[var(--color-text-primary)]',
+        'border border-[var(--color-border)]',
+        'hover:bg-[var(--color-surface)] hover:border-[var(--color-border-hover)]',
+        'focus:ring-[var(--color-accent)]',
+        'shadow-none hover:shadow-[var(--shadow-sm)]'
+      ].join(' '),
+      
+      ghost: [
+        'bg-transparent text-[var(--color-text-primary)]',
+        'border border-transparent',
+        'hover:bg-[var(--color-surface)]',
+        'focus:ring-[var(--color-accent)]',
+        'shadow-none'
+      ].join(' '),
+      
+      danger: [
+        'bg-[var(--color-error)] text-[var(--color-error-foreground)]',
+        'hover:bg-[var(--color-error-hover)]',
+        'focus:ring-[var(--color-error)]',
+        'shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)]',
+        'border border-transparent'
+      ].join(' ')
     };
 
     const sizes = {
-      sm: 'px-3 py-2 text-sm',
-      md: 'px-4 py-2 text-sm',
-      lg: 'px-6 py-3 text-base',
+      sm: [
+        'px-3 py-1.5 text-sm',
+        'rounded-[var(--radius-md)]',
+        'min-h-[2rem]',
+        'gap-1.5'
+      ].join(' '),
+      
+      md: [
+        'px-4 py-2 text-sm',
+        'rounded-[var(--radius-md)]',
+        'min-h-[2.5rem]',
+        'gap-2'
+      ].join(' '),
+      
+      lg: [
+        'px-6 py-3 text-base',
+        'rounded-[var(--radius-lg)]',
+        'min-h-[3rem]',
+        'gap-2'
+      ].join(' ')
     };
 
-    const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
+    const iconSizes = {
+      sm: 'w-4 h-4',
+      md: 'w-4 h-4',
+      lg: 'w-5 h-5'
+    };
+
+    const classes = cn(baseClasses, variants[variant], sizes[size], className);
 
     return (
       <motion.button
@@ -45,7 +109,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         onClick={onClick}
         type={type}
       >
-        {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        {loading && (
+          <Loader2 className={cn('animate-spin', iconSizes[size])} />
+        )}
+        {!loading && icon && (
+          <span className={iconSizes[size]}>{icon}</span>
+        )}
         {children}
       </motion.button>
     );

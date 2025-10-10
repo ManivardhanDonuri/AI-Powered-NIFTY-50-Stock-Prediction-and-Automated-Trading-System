@@ -183,8 +183,16 @@ export default function SettingsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Settings
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               Configure your trading system parameters and preferences
             </p>
           </div>
@@ -210,21 +218,29 @@ export default function SettingsPage() {
 
         {/* Save Status */}
         {saveStatus === 'saved' && (
-          <Alert type="success" message="Settings saved successfully!" />
+          <Alert variant="success" message="Settings saved successfully!" />
         )}
         {saveStatus === 'error' && (
-          <Alert type="error" message="Failed to save settings. Please try again." />
+          <Alert variant="error" message="Failed to save settings. Please try again." />
         )}
 
         {/* Trading Configuration */}
         <Card>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+          <h3 
+            className="text-xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
             Trading Configuration
           </h3>
 
           {/* Stock Symbols */}
           <div className="mb-6">
-            <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Stock Symbols</h4>
+            <h4 
+              className="text-lg font-medium mb-4"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Stock Symbols
+            </h4>
             <div className="flex flex-wrap gap-2 mb-4">
               {(config.trading?.stocks || []).map((stock) => (
                 <div key={stock} className="flex items-center space-x-2 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 px-3 py-1 rounded-full">
@@ -302,13 +318,19 @@ export default function SettingsPage() {
 
         {/* Signal Configuration */}
         <Card>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+          <h3 
+            className="text-xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
             Signal Generation
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label 
+                className="block text-sm font-medium mb-2"
+                style={{ color: 'var(--color-text-secondary)' }}
+              >
                 Signal Mode
               </label>
               <select
@@ -362,7 +384,10 @@ export default function SettingsPage() {
 
         {/* Telegram Configuration */}
         <Card>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+          <h3 
+            className="text-xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
             Telegram Notifications
           </h3>
 
@@ -383,7 +408,12 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Notification Types</h4>
+            <h4 
+              className="text-lg font-medium mb-4"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Notification Types
+            </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(telegramConfig.notifications).map(([key, value]) => (
                 <label key={key} className="flex items-center space-x-2">
@@ -393,7 +423,10 @@ export default function SettingsPage() {
                     onChange={(e) => updateTelegramConfig('notifications', { [key]: e.target.checked })}
                     className="rounded border-gray-300 dark:border-gray-600"
                   />
-                  <span className="text-sm text-gray-900 dark:text-white capitalize">
+                  <span 
+                    className="text-sm capitalize"
+                    style={{ color: 'var(--color-text-primary)' }}
+                  >
                     {key.replace(/([A-Z])/g, ' $1').trim()}
                   </span>
                 </label>
@@ -420,7 +453,7 @@ export default function SettingsPage() {
         {/* Warning */}
         {hasChanges && (
           <Alert
-            type="warning"
+            variant="warning"
             title="Unsaved Changes"
             message="You have unsaved changes. Some changes may require restarting the trading system to take effect."
           />
