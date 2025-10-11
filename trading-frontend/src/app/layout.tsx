@@ -54,39 +54,55 @@ export default function RootLayout({
                 try {
                   var theme = localStorage.getItem('theme');
                   var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  var resolvedTheme = theme === 'system' || !theme ? systemTheme : theme;
+                  var resolvedTheme = theme === 'system' ? systemTheme : (theme || 'light');
                   
                   if (['light', 'dark'].includes(resolvedTheme)) {
                     document.documentElement.setAttribute('data-theme', resolvedTheme);
                     document.documentElement.classList.add('theme-' + resolvedTheme);
                     
-                    // Force immediate style application
-                    if (resolvedTheme === 'light') {
-                      document.documentElement.style.backgroundColor = '#ffffff';
-                      document.documentElement.style.color = '#0f172a';
-                      document.body.style.backgroundColor = '#ffffff';
-                      document.body.style.color = '#0f172a';
-                    } else {
-                      document.documentElement.style.backgroundColor = '#0f172a';
-                      document.documentElement.style.color = '#f8fafc';
-                      document.body.style.backgroundColor = '#0f172a';
-                      document.body.style.color = '#f8fafc';
+                    // Force immediate style application with null checks
+                    if (document.documentElement && document.documentElement.style) {
+                      if (resolvedTheme === 'light') {
+                        document.documentElement.style.backgroundColor = '#ffffff';
+                        document.documentElement.style.color = '#0f172a';
+                        if (document.body && document.body.style) {
+                          document.body.style.backgroundColor = '#ffffff';
+                          document.body.style.color = '#0f172a';
+                        }
+                      } else {
+                        document.documentElement.style.backgroundColor = '#0f172a';
+                        document.documentElement.style.color = '#f8fafc';
+                        if (document.body && document.body.style) {
+                          document.body.style.backgroundColor = '#0f172a';
+                          document.body.style.color = '#f8fafc';
+                        }
+                      }
                     }
                   } else {
                     document.documentElement.setAttribute('data-theme', 'light');
                     document.documentElement.classList.add('theme-light');
-                    document.documentElement.style.backgroundColor = '#ffffff';
-                    document.documentElement.style.color = '#0f172a';
-                    document.body.style.backgroundColor = '#ffffff';
-                    document.body.style.color = '#0f172a';
+                    if (document.documentElement && document.documentElement.style) {
+                      document.documentElement.style.backgroundColor = '#ffffff';
+                      document.documentElement.style.color = '#0f172a';
+                      if (document.body && document.body.style) {
+                        document.body.style.backgroundColor = '#ffffff';
+                        document.body.style.color = '#0f172a';
+                      }
+                    }
                   }
                 } catch (e) {
-                  document.documentElement.setAttribute('data-theme', 'light');
-                  document.documentElement.classList.add('theme-light');
-                  document.documentElement.style.backgroundColor = '#ffffff';
-                  document.documentElement.style.color = '#0f172a';
-                  document.body.style.backgroundColor = '#ffffff';
-                  document.body.style.color = '#0f172a';
+                  if (document.documentElement) {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    document.documentElement.classList.add('theme-light');
+                    if (document.documentElement.style) {
+                      document.documentElement.style.backgroundColor = '#ffffff';
+                      document.documentElement.style.color = '#0f172a';
+                    }
+                    if (document.body && document.body.style) {
+                      document.body.style.backgroundColor = '#ffffff';
+                      document.body.style.color = '#0f172a';
+                    }
+                  }
                 }
               })();
             `,
@@ -96,7 +112,7 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans antialiased`}>
         <EnhancedThemeProvider
           attribute="data-theme"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange={false}
           storageKey="theme"

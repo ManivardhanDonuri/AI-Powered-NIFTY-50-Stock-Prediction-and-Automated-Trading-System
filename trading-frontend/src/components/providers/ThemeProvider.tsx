@@ -190,7 +190,7 @@ function ThemeContextProvider({ children }: { children: React.ReactNode }) {
 export function EnhancedThemeProvider({
   children,
   attribute = 'data-theme',
-  defaultTheme = 'system',
+  defaultTheme = 'light',
   enableSystem = true,
   disableTransitionOnChange = false,
   storageKey = 'theme',

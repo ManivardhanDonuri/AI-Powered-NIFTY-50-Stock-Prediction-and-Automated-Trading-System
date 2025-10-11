@@ -749,3 +749,63 @@ html[data-theme="dark"] {
 [data-theme="light"] .border-gray-300 {
   border-color: #cbd5e1 !important;
 }
+/* Custom background utilities for trading theme */
+.bg-gradient-radial {
+  background: radial-gradient(circle at center, var(--tw-gradient-stops));
+}
+
+.bg-trading-floor {
+  background: 
+    linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+    linear-gradient(315deg, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    linear-gradient(45deg, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+}
+
+/* Animated stock ticker */
+@keyframes ticker-scroll {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-ticker {
+  animation: ticker-scroll 15s linear infinite;
+}
+
+/* Floating animation for stock symbols */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Pulse glow effect */
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+    opacity: 0.7;
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Market data scrolling effect */
+@keyframes data-scroll {
+  0% { transform: translateY(100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+.animate-data-scroll {
+  animation: data-scroll 8s linear infinite;
+}
