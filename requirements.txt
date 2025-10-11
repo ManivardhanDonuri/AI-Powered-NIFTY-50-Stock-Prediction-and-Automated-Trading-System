@@ -14,8 +14,8 @@ matplotlib>=3.5.0
 plotly>=5.10.0
 seaborn>=0.11.0
 
-# Dashboard
-streamlit>=1.25.0
+# Dashboard (moved to Next.js frontend)
+# streamlit>=1.25.0 - REMOVED
 
 # Google Sheets (optional)
 gspread>=5.0.0

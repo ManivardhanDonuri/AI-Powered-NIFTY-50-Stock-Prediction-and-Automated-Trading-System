@@ -57,7 +57,7 @@ Features:
 - Fully automated scheduling system
 - Technical analysis with 15+ indicators
 - Backtesting and performance tracking
-- Streamlit dashboard
+- Web-based dashboard interface
 - Comprehensive error handling and logging"
 ```
 

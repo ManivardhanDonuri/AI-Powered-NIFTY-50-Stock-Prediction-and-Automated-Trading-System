@@ -247,22 +247,13 @@ class TradingSystem:
             return False
     
     def run_dashboard(self):
-        """Launch Streamlit dashboard."""
+        """Launch web dashboard."""
         try:
-            import subprocess
-            import sys
-            
-            dashboard_config = self.config.get('dashboard', {})
-            port = dashboard_config.get('port', 8501)
-            
-            self.logger.info(f"Launching dashboard on port {port}...")
-            
-            # Launch Streamlit dashboard
-            subprocess.run([
-                sys.executable, "-m", "streamlit", "run", 
-                "streamlit_dashboard.py", 
-                "--server.port", str(port)
-            ])
+            self.logger.info("Web dashboard functionality has been moved to the Next.js frontend.")
+            self.logger.info("Please run the frontend application instead:")
+            self.logger.info("cd trading-frontend && npm run dev")
+            self.logger.info("Then visit http://localhost:3000")
+            return True
             
         except Exception as e:
             self.logger.error(f"Error launching dashboard: {str(e)}")

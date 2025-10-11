@@ -116,8 +116,7 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# Streamlit
-.streamlit/
+
 
 # Message Queue Persistence
 message_queue.pkl
