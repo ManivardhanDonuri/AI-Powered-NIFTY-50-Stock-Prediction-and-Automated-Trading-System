@@ -22,8 +22,12 @@ export const metadata: Metadata = {
     title: 'Trading System',
   },
   icons: {
-    icon: '/icons/icon-192x192.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
     apple: '/icons/icon-192x192.png',
+    shortcut: '/favicon.ico',
   },
 };
 

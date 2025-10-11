@@ -124,7 +124,7 @@ export default function TrainModelPage() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {DEFAULT_STOCKS.map(stock => (
-                      <option key={stock} value={stock}>{stock}</option>
+                      <option key={stock.symbol} value={stock.symbol}>{stock.name}</option>
                     ))}
                   </select>
                 </div>
@@ -144,7 +144,7 @@ export default function TrainModelPage() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {MODEL_TYPES.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
+                      <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                   </select>
                 </div>

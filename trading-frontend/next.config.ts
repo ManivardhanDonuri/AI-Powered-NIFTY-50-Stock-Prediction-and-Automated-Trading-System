@@ -1,8 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Enable standalone output for Docker
-  output: 'standalone',
+  // Remove standalone output for standard deployments
+  // output: 'standalone', // Only use for Docker deployments
   
   // Optimize images
   images: {
@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
   experimental: {
     webpackBuildWorker: true,
   },
+  
+  // Ensure proper trailing slash handling
+  trailingSlash: false,
   
   // Headers for security
   async headers() {
