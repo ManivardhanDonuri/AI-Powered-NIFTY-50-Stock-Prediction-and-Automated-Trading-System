@@ -73,13 +73,6 @@ export const SIDEBAR_MENU_ITEMS = [
     description: 'System health and monitoring'
   },
   {
-    id: 'train-model',
-    label: 'Train Model',
-    href: '/train-model',
-    icon: 'Brain',
-    description: 'Machine learning model training'
-  },
-  {
     id: 'settings',
     label: 'Settings',
     href: '/settings',

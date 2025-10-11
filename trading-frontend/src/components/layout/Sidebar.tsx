@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   TrendingUp,
+  Activity,
 } from 'lucide-react';
 import { SIDEBAR_MENU_ITEMS } from '@/utils/constants';
 
@@ -27,6 +28,8 @@ const iconMap = {
   PieChart,
   Settings,
   Power,
+  Brain,
+  Activity,
 };
 
 export default function Sidebar({ collapsed, onToggle, isMobile = false }: SidebarProps) {
@@ -137,7 +140,7 @@ export default function Sidebar({ collapsed, onToggle, isMobile = false }: Sideb
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             {SIDEBAR_MENU_ITEMS.map((item) => {
-              const Icon = iconMap[item.icon as keyof typeof iconMap];
+              const Icon = iconMap[item.icon as keyof typeof iconMap] || Settings; // Fallback to Settings icon
               const isActive = pathname === item.href;
 
               return (
