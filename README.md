@@ -244,21 +244,6 @@ pip list | grep -E "(tensorflow|pandas|yfinance)"
    - Check if `models/` directory exists
    - Ensure sufficient historical data
 
-## 🔒 Security & Privacy
-
-- **Local Processing**: All AI models run locally
-- **Secure Credentials**: Environment variables for sensitive data
-- **No Data Sharing**: Your trading data stays private
-- **Open Source**: Full transparency of all operations
-
-## 📋 Requirements
-
-- **Python**: 3.8 or higher
-- **Memory**: 4GB RAM minimum (8GB recommended)
-- **Storage**: 2GB free space for models and data
-- **Internet**: Stable connection for real-time data
-- **Telegram**: Bot token and chat ID
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -266,10 +251,6 @@ pip list | grep -E "(tensorflow|pandas|yfinance)"
 3. Commit your changes (`git commit -m 'Add new feature'`)
 4. Push to the branch (`git push origin feature/new-feature`)
 5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## ⚠️ Important Disclaimer
 
@@ -280,20 +261,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - The authors are not responsible for any financial losses
 - Always consult with a qualified financial advisor
 - Never invest money you cannot afford to lose
-
-## 🙏 Acknowledgments
-
-- **TensorFlow** - Deep learning framework
-- **Yahoo Finance** - Stock data provider
-- **Telegram Bot API** - Notification delivery
-- **Google Sheets API** - Data logging
-- **Next.js** - Modern web framework
-
-## 📞 Support
-
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/ManivardhanDonuri/AI-Powered-NIFTY-50-Stock-Prediction-and-Automated-Trading-System/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/ManivardhanDonuri/AI-Powered-NIFTY-50-Stock-Prediction-and-Automated-Trading-System/discussions)
-- 📧 **Contact**: Create an issue for support
 
 ---
 
