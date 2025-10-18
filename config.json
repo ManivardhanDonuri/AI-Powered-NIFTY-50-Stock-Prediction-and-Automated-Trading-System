@@ -57,11 +57,12 @@
             "recipient": "${WHATSAPP_RECIPIENT}"
         },
         "preferences": {
-            "signal_types": ["BUY", "SELL"],
-            "min_confidence": 0.7,
+            "signal_types": ["BUY", "SELL", "HOLD"],
+            "min_confidence": 0.5,
             "stocks": ["ALL"],
+            "ai_enhanced": false,
             "quiet_hours": {
-                "enabled": true,
+                "enabled": false,
                 "start": "22:00",
                 "end": "08:00"
             }

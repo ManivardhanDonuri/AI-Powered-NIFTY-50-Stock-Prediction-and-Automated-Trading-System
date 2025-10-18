@@ -13,6 +13,7 @@ import {
   X,
   TrendingUp,
   Activity,
+  MessageCircle,
 } from 'lucide-react';
 import { SIDEBAR_MENU_ITEMS } from '@/utils/constants';
 
@@ -30,6 +31,7 @@ const iconMap = {
   Power,
   Brain,
   Activity,
+  MessageCircle,
 };
 
 export default function Sidebar({ collapsed, onToggle, isMobile = false }: SidebarProps) {

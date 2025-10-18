@@ -59,6 +59,13 @@ export const SIDEBAR_MENU_ITEMS = [
     description: 'Portfolio management and tracking'
   },
   {
+    id: 'chat',
+    label: 'AI Assistant',
+    href: '/chat',
+    icon: 'Brain',
+    description: 'AI-powered trading assistant and insights'
+  },
+  {
     id: 'history',
     label: 'Trade History',
     href: '/history',
