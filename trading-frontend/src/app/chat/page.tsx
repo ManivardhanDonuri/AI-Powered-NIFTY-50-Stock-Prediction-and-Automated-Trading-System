@@ -6,7 +6,7 @@ import { MessageCircle, History, Settings, Plus, Trash2 } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import WorkingChatInterface from '@/components/chat/WorkingChatInterface';
+import AITradingChatInterface from '@/components/chat/AITradingChatInterface';
 import { Conversation } from '@/types/chat';
 
 const ChatPage: React.FC = () => {
@@ -244,13 +244,11 @@ const ChatPage: React.FC = () => {
           </div>
           
           {/* Chat Interface */}
-          <div className="flex-1 p-4">
-            <WorkingChatInterface
-              userId="default-user"
+          <div className="flex-1">
+            <AITradingChatInterface
               conversationId={currentConversationId}
-              contextType="general"
-              onConversationChange={handleConversationChange}
-              className="h-full"
+              contextType="trading"
+              onNewConversation={handleConversationChange}
             />
           </div>
         </div>

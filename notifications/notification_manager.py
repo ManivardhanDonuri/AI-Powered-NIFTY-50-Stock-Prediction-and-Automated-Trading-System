@@ -8,7 +8,6 @@ from datetime import datetime, time as dt_time
 
 from .config import NotificationConfigManager, NotificationConfig
 from .telegram_service import TelegramService
-from .whatsapp_service import WhatsAppService
 from .message_formatter import MessageFormatter
 from .delivery_queue import DeliveryQueue
 from .base_service import NotificationMessage, SignalNotificationData
@@ -75,17 +74,6 @@ class NotificationManager:
                     self.services['telegram'].is_enabled = False
             except Exception as e:
                 self.logger.error(f"Failed to initialize Telegram service: {str(e)}")
-
-        if self.config.whatsapp_enabled:
-            try:
-                self.services['whatsapp'] = WhatsAppService(self.config.whatsapp_config)
-                if self.services['whatsapp'].validate_connection():
-                    self.logger.info("WhatsApp service initialized and validated")
-                else:
-                    self.logger.error("WhatsApp service validation failed")
-                    self.services['whatsapp'].is_enabled = False
-            except Exception as e:
-                self.logger.error(f"Failed to initialize WhatsApp service: {str(e)}")
 
     def _register_queue_services(self):
         for service_name, service in self.services.items():

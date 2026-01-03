@@ -52,6 +52,16 @@ async def health_check(request: Request):
     else:
         services['context_provider'] = {'status': 'not_initialized'}
 
+    # Check Ollama service status
+    if hasattr(request.app.state, 'ollama_service') and request.app.state.ollama_service:
+        try:
+            ollama_status = await request.app.state.ollama_service.get_stats()
+            services['ollama_service'] = ollama_status
+        except Exception as e:
+            services['ollama_service'] = {'status': 'error', 'error': str(e)}
+    else:
+        services['ollama_service'] = {'status': 'not_initialized'}
+
     overall_status = "healthy"
     for service_status in services.values():
         if service_status.get('status') in ['error', 'not_initialized']:
@@ -85,12 +95,20 @@ async def detailed_status(request: Request):
         except Exception as e:
             services['context_provider'] = {'status': 'error', 'error': str(e)}
 
+    # Check Ollama service status
+    if hasattr(request.app.state, 'ollama_service') and request.app.state.ollama_service:
+        try:
+            services['ollama_service'] = await request.app.state.ollama_service.get_stats()
+        except Exception as e:
+            services['ollama_service'] = {'status': 'error', 'error': str(e)}
+
     configuration = {
         'host': settings.host,
         'port': settings.port,
         'debug': settings.debug,
-        'grok_model': settings.grok_model,
-        'grok_max_tokens': settings.grok_max_tokens,
+        'ollama_model': settings.ollama_model,
+        'ollama_host': settings.ollama_host,
+        'ollama_port': settings.ollama_port,
         'rate_limit_rpm': settings.rate_limit_requests_per_minute,
         'cache_ttl_seconds': settings.cache_ttl_seconds,
         'database_url': settings.database_url.split('://')[0] + '://***',

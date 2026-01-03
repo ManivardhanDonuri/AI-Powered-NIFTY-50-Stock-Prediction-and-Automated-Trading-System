@@ -29,18 +29,58 @@ class ChatDatabase:
         self.db_path = db_path
         self.logger = logging.getLogger(__name__)
         self._lock = asyncio.Lock()
-
-        asyncio.create_task(self._initialize_db())
+        self._initialized = False
 
     async def _initialize_db(self):
+        if self._initialized:
+            return
+            
         async with self._lock:
+            if self._initialized:
+                return
+                
             try:
                 conn = sqlite3.connect(self.db_path)
                 cursor = conn.cursor()
 
+                # Create conversations table
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS conversations (
+                        id TEXT PRIMARY KEY,
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        metadata TEXT
+                    )
+                ''')
+
+                # Create messages table
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS messages (
+                        id TEXT PRIMARY KEY,
+                        conversation_id TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        message_type TEXT NOT NULL,
+                        timestamp TEXT NOT NULL,
+                        metadata TEXT,
+                        FOREIGN KEY (conversation_id) REFERENCES conversations (id)
+                    )
+                ''')
+
+                # Create indexes for better performance
+                cursor.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_messages_conversation_id 
+                    ON messages (conversation_id)
+                ''')
+                
+                cursor.execute('''
+                    CREATE INDEX IF NOT EXISTS idx_messages_timestamp 
+                    ON messages (timestamp)
+                ''')
+
                 conn.commit()
                 conn.close()
-
+                
+                self._initialized = True
                 self.logger.info("Chat database initialized successfully")
 
             except Exception as e:
@@ -48,6 +88,8 @@ class ChatDatabase:
                 raise
 
     async def _execute_query(self, query: str, params: tuple = (), fetch: bool = False):
+        await self._initialize_db()
+        
         async with self._lock:
             try:
                 conn = sqlite3.connect(self.db_path)
@@ -73,12 +115,17 @@ class ChatDatabase:
 
     async def create_conversation(self, conversation_id: str, metadata: Optional[Dict[str, Any]] = None):
         metadata_json = json.dumps(metadata) if metadata else None
+        now = datetime.now().isoformat()
 
-        await self._execute_query(query, (conversation_id, metadata_json))
+        query = '''
+            INSERT INTO conversations (id, created_at, updated_at, metadata)
+            VALUES (?, ?, ?, ?)
+        '''
+        await self._execute_query(query, (conversation_id, now, now, metadata_json))
         self.logger.info(f"Created conversation: {conversation_id}")
 
     async def get_conversation(self, conversation_id: str) -> Optional[Conversation]:
-
+        query = 'SELECT * FROM conversations WHERE id = ?'
         result = await self._execute_query(query, (conversation_id,), fetch=True)
 
         if result:
@@ -95,7 +142,7 @@ class ChatDatabase:
         return None
 
     async def list_conversations(self, limit: int = 20, offset: int = 0) -> List[Conversation]:
-
+        query = 'SELECT * FROM conversations ORDER BY updated_at DESC LIMIT ? OFFSET ?'
         result = await self._execute_query(query, (limit, offset), fetch=True)
 
         conversations = []
@@ -113,8 +160,9 @@ class ChatDatabase:
         return conversations
 
     async def update_conversation_timestamp(self, conversation_id: str):
-
-        await self._execute_query(query, (conversation_id,))
+        query = 'UPDATE conversations SET updated_at = ? WHERE id = ?'
+        now = datetime.now().isoformat()
+        await self._execute_query(query, (now, conversation_id))
 
     async def delete_conversation(self, conversation_id: str):
         await self._execute_query(
@@ -132,6 +180,10 @@ class ChatDatabase:
     async def store_message(self, message: ChatMessage):
         metadata_json = json.dumps(message.metadata) if message.metadata else None
 
+        query = '''
+            INSERT INTO messages (id, conversation_id, content, message_type, timestamp, metadata)
+            VALUES (?, ?, ?, ?, ?, ?)
+        '''
         await self._execute_query(query, (
             message.id,
             message.conversation_id,
@@ -147,7 +199,12 @@ class ChatDatabase:
         limit: int = 50,
         offset: int = 0
     ) -> List[ChatMessage]:
-
+        query = '''
+            SELECT * FROM messages 
+            WHERE conversation_id = ? 
+            ORDER BY timestamp ASC 
+            LIMIT ? OFFSET ?
+        '''
         result = await self._execute_query(query, (conversation_id, limit, offset), fetch=True)
 
         messages = []
@@ -167,7 +224,12 @@ class ChatDatabase:
         return messages
 
     async def get_last_message(self, conversation_id: str) -> Optional[ChatMessage]:
-
+        query = '''
+            SELECT * FROM messages 
+            WHERE conversation_id = ? 
+            ORDER BY timestamp DESC 
+            LIMIT 1
+        '''
         result = await self._execute_query(query, (conversation_id,), fetch=True)
 
         if result:
@@ -222,10 +284,12 @@ class ChatDatabase:
         stats['messages_today'] = result[0]['count'] if result else 0
 
         week_ago = (datetime.now() - timedelta(days=7)).isoformat()
-        result = await self._execute_query(
-            (week_ago,),
-            fetch=True
-        )
+        query = '''
+            SELECT COUNT(DISTINCT conversation_id) as count 
+            FROM messages 
+            WHERE timestamp > ?
+        '''
+        result = await self._execute_query(query, (week_ago,), fetch=True)
         stats['active_conversations'] = result[0]['count'] if result else 0
 
         if stats['total_conversations'] > 0:
@@ -246,8 +310,13 @@ class ChatDatabase:
         )
         messages_deleted = result
 
-        result = await self._execute_query(
-        )
+        query = '''
+            DELETE FROM conversations 
+            WHERE id NOT IN (
+                SELECT DISTINCT conversation_id FROM messages WHERE timestamp >= ?
+            )
+        '''
+        result = await self._execute_query(query, (cutoff_date,))
         conversations_deleted = result
 
         self.logger.info(

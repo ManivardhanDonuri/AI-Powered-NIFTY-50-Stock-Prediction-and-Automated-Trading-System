@@ -13,8 +13,7 @@ class MessageFormatter:
         self.logger = get_notification_logger('formatter')
 
         self.platform_limits = {
-            'telegram': 4096,
-            'whatsapp': 1024
+            'telegram': 4096
         }
 
         self.signal_emojis = {
@@ -40,8 +39,6 @@ class MessageFormatter:
         try:
             if platform == 'telegram':
                 return self._format_signal_telegram(signal_data)
-            elif platform == 'whatsapp':
-                return self._format_signal_whatsapp(signal_data)
             else:
                 return self._format_signal_plain(signal_data)
 
@@ -56,17 +53,6 @@ class MessageFormatter:
         message = f"{emoji} <b>{signal_data.signal_type}</b>\n\n"
         message += f"📈 <b>{signal_data.symbol}</b>\n"
         message += f"💰 <b>₹{signal_data.price:.2f}</b>\n"
-        message += f"📝 {signal_data.reason}"
-
-        return message
-
-    def _format_signal_whatsapp(self, signal_data: SignalNotificationData) -> str:
-        emoji = self.signal_emojis.get(signal_data.signal_type, '📊')
-
-        # Simple message format with only essential information
-        message = f"{emoji} *{signal_data.signal_type}*\n\n"
-        message += f"📈 *{signal_data.symbol}*\n"
-        message += f"💰 *₹{signal_data.price:.2f}*\n"
         message += f"📝 {signal_data.reason}"
 
         return message
@@ -86,8 +72,6 @@ class MessageFormatter:
         try:
             if platform == 'telegram':
                 return self._format_portfolio_telegram(portfolio_data)
-            elif platform == 'whatsapp':
-                return self._format_portfolio_whatsapp(portfolio_data)
             else:
                 return self._format_portfolio_plain(portfolio_data)
 
@@ -124,25 +108,6 @@ class MessageFormatter:
 
         return message
 
-    def _format_portfolio_whatsapp(self, portfolio_data: Dict[str, Any]) -> str:
-        total_pnl = portfolio_data.get('total_pnl', 0)
-        win_rate = portfolio_data.get('win_rate', 0)
-        total_trades = portfolio_data.get('total_trades', 0)
-
-        if total_pnl > 0:
-            performance_emoji = '📈'
-        elif total_pnl < 0:
-            performance_emoji = '📉'
-        else:
-            performance_emoji = '➡️'
-
-        message = f"{performance_emoji} *Portfolio Summary*\n\n"
-        message += f"💰 *Total P&L:* ₹{total_pnl:.2f}\n"
-        message += f"📊 *Win Rate:* {win_rate:.1f}%\n"
-        message += f"🔢 *Total Trades:* {total_trades}\n"
-
-        return message
-
     def _format_portfolio_plain(self, portfolio_data: Dict[str, Any]) -> str:
         total_pnl = portfolio_data.get('total_pnl', 0)
         win_rate = portfolio_data.get('win_rate', 0)
@@ -173,8 +138,6 @@ class MessageFormatter:
 
         if platform == 'telegram':
             return f"{emoji} <b>{alert_type.upper()}</b>\n\n{message}\n\n🕐 {timestamp}"
-        elif platform == 'whatsapp':
-            return f"{emoji} *{alert_type.upper()}*\n\n{message}\n\n🕐 {timestamp}"
         else:
             return f"{alert_type.upper()}: {message} [{timestamp}]"
 

@@ -51,7 +51,7 @@ class WebSocketService {
   private async checkServerAndConnect() {
     try {
       // Try to ping the API server first
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003/api'}/health`.replace('/api/api', '/api'), {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api'}/health`.replace('/api/api', '/api'), {
         method: 'GET',
         timeout: 2000,
       } as any);

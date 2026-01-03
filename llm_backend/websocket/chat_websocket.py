@@ -170,6 +170,12 @@ class ChatWebSocketHandler:
             await self.handle_join_conversation(user_id, message)
         elif message_type == 'context_update':
             await self.handle_context_update(user_id, message)
+        elif message_type == 'ai_prediction_request':
+            await self.handle_ai_prediction_request(user_id, message)
+        elif message_type == 'ai_recommendation_request':
+            await self.handle_ai_recommendation_request(user_id, message)
+        elif message_type == 'ai_risk_analysis_request':
+            await self.handle_ai_risk_analysis_request(user_id, message)
         else:
             await self.send_error(user_id, f"Unknown message type: {message_type}")
 
@@ -392,3 +398,213 @@ class ChatWebSocketHandler:
             'active_typing_sessions': len(self.typing_tasks),
             'timestamp': datetime.now().isoformat()
         }
+
+    async def handle_ai_prediction_request(self, user_id: str, message: WebSocketMessage):
+        """Handle real-time AI prediction requests via WebSocket."""
+        try:
+            from ..ai_trading.engines.prediction_engine import PredictionEngine
+            
+            data = message.data
+            symbol = data.get('symbol')
+            timeframes = data.get('timeframes', ["1d", "3d", "7d", "30d"])
+            
+            if not symbol:
+                await self.send_error(user_id, "Symbol is required for prediction")
+                return
+            
+            # Send processing notification
+            await self.connection_manager.send_personal_message(user_id, {
+                'type': 'ai_processing',
+                'data': {
+                    'request_type': 'prediction',
+                    'symbol': symbol,
+                    'status': 'processing'
+                }
+            })
+            
+            # Generate prediction
+            prediction_engine = PredictionEngine()
+            prediction_result = await prediction_engine.generate_predictions(symbol, timeframes)
+            
+            # Send result
+            await self.connection_manager.send_personal_message(user_id, {
+                'type': 'ai_prediction_result',
+                'data': {
+                    'symbol': prediction_result.symbol,
+                    'predictions': prediction_result.predictions,
+                    'confidence_score': prediction_result.confidence_score,
+                    'model_ensemble': prediction_result.model_ensemble,
+                    'timestamp': prediction_result.timestamp.isoformat()
+                }
+            })
+            
+        except Exception as e:
+            self.logger.error(f"Error handling AI prediction request: {str(e)}")
+            await self.send_error(user_id, f"Prediction request failed: {str(e)}")
+
+    async def handle_ai_recommendation_request(self, user_id: str, message: WebSocketMessage):
+        """Handle real-time AI recommendation requests via WebSocket."""
+        try:
+            from ..ai_trading.engines.prediction_engine import PredictionEngine
+            from ..ai_trading.engines.recommendation_engine import RecommendationEngine
+            from ..ai_trading.engines.risk_analyzer import RiskAnalyzer
+            from ..ai_trading.data_models import RiskAssessment
+            
+            data = message.data
+            symbol = data.get('symbol')
+            portfolio = data.get('portfolio', {})
+            
+            if not symbol:
+                await self.send_error(user_id, "Symbol is required for recommendation")
+                return
+            
+            # Send processing notification
+            await self.connection_manager.send_personal_message(user_id, {
+                'type': 'ai_processing',
+                'data': {
+                    'request_type': 'recommendation',
+                    'symbol': symbol,
+                    'status': 'processing'
+                }
+            })
+            
+            # Generate components
+            prediction_engine = PredictionEngine()
+            recommendation_engine = RecommendationEngine()
+            risk_analyzer = RiskAnalyzer()
+            
+            # Get prediction and risk analysis
+            prediction_result = await prediction_engine.generate_predictions(symbol)
+            risk_metrics = await risk_analyzer.calculate_risk_metrics(symbol, portfolio)
+            
+            risk_assessment = RiskAssessment(
+                risk_metrics=risk_metrics,
+                portfolio_impact=0.1,
+                risk_score=50.0,
+                risk_factors=["volatility", "beta"],
+                mitigation_strategies=["diversification"],
+                timestamp=datetime.now()
+            )
+            
+            # Generate recommendation
+            recommendation = await recommendation_engine.generate_recommendation(
+                symbol, prediction_result, risk_assessment
+            )
+            
+            # Send result
+            await self.connection_manager.send_personal_message(user_id, {
+                'type': 'ai_recommendation_result',
+                'data': {
+                    'symbol': recommendation.symbol,
+                    'action': recommendation.action,
+                    'confidence': recommendation.confidence,
+                    'target_price': recommendation.target_price,
+                    'stop_loss': recommendation.stop_loss,
+                    'rationale': recommendation.rationale,
+                    'risk_reward_ratio': recommendation.risk_reward_ratio,
+                    'timestamp': recommendation.timestamp.isoformat()
+                }
+            })
+            
+        except Exception as e:
+            self.logger.error(f"Error handling AI recommendation request: {str(e)}")
+            await self.send_error(user_id, f"Recommendation request failed: {str(e)}")
+
+    async def handle_ai_risk_analysis_request(self, user_id: str, message: WebSocketMessage):
+        """Handle real-time AI risk analysis requests via WebSocket."""
+        try:
+            from ..ai_trading.engines.risk_analyzer import RiskAnalyzer
+            
+            data = message.data
+            portfolio = data.get('portfolio', {})
+            symbol = data.get('symbol')
+            
+            if not portfolio:
+                await self.send_error(user_id, "Portfolio data is required for risk analysis")
+                return
+            
+            # Send processing notification
+            await self.connection_manager.send_personal_message(user_id, {
+                'type': 'ai_processing',
+                'data': {
+                    'request_type': 'risk_analysis',
+                    'status': 'processing'
+                }
+            })
+            
+            # Perform risk analysis
+            risk_analyzer = RiskAnalyzer()
+            
+            result = {}
+            
+            # Individual stock risk if symbol provided
+            if symbol:
+                risk_metrics = await risk_analyzer.calculate_risk_metrics(symbol, portfolio)
+                risk_alerts = await risk_analyzer.generate_risk_alerts(risk_metrics)
+                
+                result['individual_risk'] = {
+                    'symbol': risk_metrics.symbol,
+                    'volatility': risk_metrics.volatility,
+                    'beta': risk_metrics.beta,
+                    'var_1d': risk_metrics.var_1d,
+                    'sharpe_ratio': risk_metrics.sharpe_ratio,
+                    'risk_alerts': [
+                        {
+                            'type': alert.alert_type,
+                            'severity': alert.severity,
+                            'message': alert.message
+                        }
+                        for alert in risk_alerts
+                    ]
+                }
+            
+            # Portfolio risk analysis
+            portfolio_risk = await risk_analyzer.assess_portfolio_risk(portfolio)
+            
+            result['portfolio_risk'] = {
+                'overall_risk_score': portfolio_risk.overall_risk_score,
+                'concentration_risk': portfolio_risk.concentration_risk,
+                'sector_exposure': portfolio_risk.sector_exposure,
+                'risk_alerts': [
+                    {
+                        'type': alert.alert_type,
+                        'severity': alert.severity,
+                        'message': alert.message
+                    }
+                    for alert in portfolio_risk.risk_alerts
+                ]
+            }
+            
+            # Send result
+            await self.connection_manager.send_personal_message(user_id, {
+                'type': 'ai_risk_analysis_result',
+                'data': result
+            })
+            
+        except Exception as e:
+            self.logger.error(f"Error handling AI risk analysis request: {str(e)}")
+            await self.send_error(user_id, f"Risk analysis request failed: {str(e)}")
+
+    async def broadcast_ai_market_alert(self, alert_data: Dict[str, Any]):
+        """Broadcast AI-generated market alerts to all connected users."""
+        message = {
+            'type': 'ai_market_alert',
+            'data': {
+                **alert_data,
+                'timestamp': datetime.now().isoformat()
+            }
+        }
+        
+        await self.connection_manager.broadcast_message(message)
+
+    async def send_ai_recommendation_update(self, user_id: str, recommendation_data: Dict[str, Any]):
+        """Send AI recommendation updates to specific user."""
+        message = {
+            'type': 'ai_recommendation_update',
+            'data': {
+                **recommendation_data,
+                'timestamp': datetime.now().isoformat()
+            }
+        }
+        
+        await self.connection_manager.send_personal_message(user_id, message)

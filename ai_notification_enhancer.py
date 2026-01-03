@@ -182,14 +182,6 @@ class AINotificationEnhancer:
 
             return content[:4000]
 
-        elif platform == 'whatsapp':
-            header = f"🚨 {signal['type']} Signal: {signal['symbol']}\n"
-            header += f"💰 {signal['price']} | 📊 {signal['confidence']:.1%}\n\n"
-
-            content = header + explanation
-
-            return content[:1600]
-
         return explanation
 
     def _format_alert_for_platform(self, enhanced_data: Dict[str, Any], platform: str) -> str:
@@ -208,13 +200,6 @@ class AINotificationEnhancer:
                     content += f"• {action}\n"
 
             return content[:4000]
-
-        elif platform == 'whatsapp':
-            header = f"⚠️ Risk Alert: {risk['type']}\n"
-            header += f"🔴 {risk['severity'].upper()} SEVERITY\n\n"
-
-            content = header + alert
-            return content[:1600]
 
         return alert
 
@@ -235,14 +220,6 @@ class AINotificationEnhancer:
                     content += f"• {opp}\n"
 
             return content[:4000]
-
-        elif platform == 'whatsapp':
-            header = f"📈 Market Update\n"
-            header += f"📰 {event['event']}\n"
-            header += f"📊 {event['impact'].upper()} Impact\n\n"
-
-            content = header + update
-            return content[:1600]
 
         return update
 

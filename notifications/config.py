@@ -15,17 +15,13 @@ except ImportError:
 class NotificationConfig:
     enabled: bool = False
     telegram_enabled: bool = False
-    whatsapp_enabled: bool = False
     telegram_config: Dict[str, Any] = None
-    whatsapp_config: Dict[str, Any] = None
     preferences: Dict[str, Any] = None
     delivery_config: Dict[str, Any] = None
 
     def __post_init__(self):
         if self.telegram_config is None:
             self.telegram_config = {}
-        if self.whatsapp_config is None:
-            self.whatsapp_config = {}
         if self.preferences is None:
             self.preferences = {}
         if self.delivery_config is None:
@@ -56,26 +52,10 @@ class NotificationConfigManager:
                 telegram_config.get('chat_id')
             )
 
-            whatsapp_config = notifications_config.get('whatsapp', {})
-            whatsapp_config['access_token'] = self._get_env_var(
-                'WHATSAPP_ACCESS_TOKEN',
-                whatsapp_config.get('access_token')
-            )
-            whatsapp_config['phone_number_id'] = self._get_env_var(
-                'WHATSAPP_PHONE_ID',
-                whatsapp_config.get('phone_number_id')
-            )
-            whatsapp_config['recipient'] = self._get_env_var(
-                'WHATSAPP_RECIPIENT',
-                whatsapp_config.get('recipient')
-            )
-
             self._config = NotificationConfig(
                 enabled=notifications_config.get('enabled', False),
                 telegram_enabled=telegram_config.get('enabled', False),
-                whatsapp_enabled=whatsapp_config.get('enabled', False),
                 telegram_config=telegram_config,
-                whatsapp_config=whatsapp_config,
                 preferences=notifications_config.get('preferences', {}),
                 delivery_config=notifications_config.get('delivery', {})
             )
@@ -110,17 +90,7 @@ class NotificationConfigManager:
             if not config.telegram_config.get('chat_id'):
                 errors.append("Telegram chat ID is required when Telegram is enabled")
 
-        if config.whatsapp_enabled:
-            method = config.whatsapp_config.get('method', 'business_api')
-            if method == 'business_api':
-                if not config.whatsapp_config.get('access_token'):
-                    errors.append("WhatsApp access token is required for Business API")
-                if not config.whatsapp_config.get('phone_number_id'):
-                    errors.append("WhatsApp phone number ID is required for Business API")
-            if not config.whatsapp_config.get('recipient'):
-                errors.append("WhatsApp recipient is required when WhatsApp is enabled")
-
-        if config.enabled and not (config.telegram_enabled or config.whatsapp_enabled):
+        if config.enabled and not config.telegram_enabled:
             warnings.append("Notifications are enabled but no services are configured")
 
         preferences = config.preferences

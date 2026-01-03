@@ -16,7 +16,7 @@ const io = socketIo(server, {
   }
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 
 // Middleware
 app.use(cors());

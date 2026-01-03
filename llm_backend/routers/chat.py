@@ -57,13 +57,17 @@ def get_context_provider(request: Request) -> TradingContextProvider:
         raise HTTPException(status_code=500, detail="Context provider not initialized")
     return request.app.state.context_provider
 
-chat_db = ChatDatabase()
+def get_chat_db(request: Request) -> ChatDatabase:
+    if not hasattr(request.app.state, 'chat_db'):
+        raise HTTPException(status_code=500, detail="Chat database not initialized")
+    return request.app.state.chat_db
 
 @router.post("/message", response_model=ChatMessageResponse)
 async def send_message(
     request: ChatMessageRequest,
     llm_service: LLMServiceManager = Depends(get_llm_service),
-    context_provider: TradingContextProvider = Depends(get_context_provider)
+    context_provider: TradingContextProvider = Depends(get_context_provider),
+    chat_db: ChatDatabase = Depends(get_chat_db)
 ):
     try:
         start_time = datetime.now()
@@ -133,7 +137,8 @@ async def send_message(
 async def get_conversation_history(
     conversation_id: str,
     limit: int = 50,
-    offset: int = 0
+    offset: int = 0,
+    chat_db: ChatDatabase = Depends(get_chat_db)
 ):
     try:
         conversation = await chat_db.get_conversation(conversation_id)
@@ -169,7 +174,7 @@ async def get_conversation_history(
         raise HTTPException(status_code=500, detail=f"Error retrieving history: {str(e)}")
 
 @router.get("/conversations")
-async def list_conversations(limit: int = 20, offset: int = 0):
+async def list_conversations(limit: int = 20, offset: int = 0, chat_db: ChatDatabase = Depends(get_chat_db)):
     try:
         conversations = await chat_db.list_conversations(limit, offset)
 
@@ -315,7 +320,7 @@ async def get_quick_action_suggestions(
         raise HTTPException(status_code=500, detail=f"Error getting suggestions: {str(e)}")
 
 @router.delete("/conversation/{conversation_id}")
-async def delete_conversation(conversation_id: str):
+async def delete_conversation(conversation_id: str, chat_db: ChatDatabase = Depends(get_chat_db)):
     try:
         conversation = await chat_db.get_conversation(conversation_id)
         if not conversation:
@@ -334,7 +339,7 @@ async def delete_conversation(conversation_id: str):
         raise HTTPException(status_code=500, detail=f"Error deleting conversation: {str(e)}")
 
 @router.post("/conversation/{conversation_id}/clear")
-async def clear_conversation(conversation_id: str):
+async def clear_conversation(conversation_id: str, chat_db: ChatDatabase = Depends(get_chat_db)):
     try:
         conversation = await chat_db.get_conversation(conversation_id)
         if not conversation:
@@ -353,7 +358,7 @@ async def clear_conversation(conversation_id: str):
         raise HTTPException(status_code=500, detail=f"Error clearing conversation: {str(e)}")
 
 @router.get("/stats")
-async def get_chat_statistics():
+async def get_chat_statistics(chat_db: ChatDatabase = Depends(get_chat_db)):
     try:
         stats = await chat_db.get_statistics()
 
