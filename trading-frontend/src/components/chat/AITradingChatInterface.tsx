@@ -23,10 +23,7 @@ interface AITradingChatInterfaceProps {
   onNewConversation?: (id: string) => void;
 }
 
-export default function AITradingChatInterface({
-  conversationId,
-  contextType = 'trading',
-}: AITradingChatInterfaceProps) {
+export default function AITradingChatInterface({}: AITradingChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -51,47 +48,103 @@ What would you like to know about these 3 stocks today?`,
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const currentConversationId = conversationId || '';
+  const [responseCache, setResponseCache] = useState<Map<string, any>>(new Map());
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Stock data for the 3 main project stocks
-  const stockDatabase = [
-    { symbol: 'TCS.NS', name: 'TCS', price: 4150, sector: 'IT Services', trend: 'bullish' },
-    { symbol: 'HDFCBANK.NS', name: 'HDFC Bank', price: 1678, sector: 'Banking', trend: 'bullish' },
-    { symbol: 'RELIANCE.NS', name: 'Reliance', price: 2890, sector: 'Energy/Retail', trend: 'neutral' }
-  ];
+  // Normalize query to create consistent cache keys
+  const normalizeQuery = (message: string): string => {
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Remove common variations and normalize to base patterns
+    let normalized = lowerMessage
+      .replace(/[?!.,]/g, '') // Remove punctuation
+      .replace(/\s+/g, ' ') // Normalize spaces
+      .trim();
+    
+    // Map similar queries to same cache key
+    if (normalized.includes('buy') || normalized.includes('recommend') || normalized.includes('which stock') || normalized.includes('should i') || normalized.includes('best stock') || normalized.includes('invest') || normalized.includes('portfolio') || normalized.includes('pick')) {
+      return 'recommendation';
+    }
+    
+    if (normalized.includes('predict') || normalized.includes('forecast') || normalized.includes('price target') || normalized.includes('future price') || normalized.includes('prediction') || normalized.includes('target') || normalized.includes('tomorrow') || normalized.includes('next week') || normalized.includes('next month')) {
+      // Include stock name in cache key for predictions
+      if (normalized.includes('tcs')) return 'prediction_tcs';
+      if (normalized.includes('hdfc')) return 'prediction_hdfc';
+      if (normalized.includes('reliance')) return 'prediction_reliance';
+      return 'prediction_general';
+    }
+    
+    if (normalized.includes('risk') || normalized.includes('volatility') || normalized.includes('safe') || normalized.includes('dangerous') || normalized.includes('loss') || normalized.includes('drawdown') || normalized.includes('beta')) {
+      // Include stock name in cache key for risk analysis
+      if (normalized.includes('tcs')) return 'risk_tcs';
+      if (normalized.includes('hdfc')) return 'risk_hdfc';
+      if (normalized.includes('reliance')) return 'risk_reliance';
+      return 'risk_general';
+    }
+    
+    if (normalized.includes('compare') || normalized.includes('vs') || normalized.includes('versus') || normalized.includes('better') || normalized.includes('difference') || normalized.includes('between')) {
+      return 'comparison';
+    }
+    
+    if (normalized.includes('market') || normalized.includes('outlook') || normalized.includes('sentiment') || normalized.includes('trend') || normalized.includes('bullish') || normalized.includes('bearish') || normalized.includes('nifty') || normalized.includes('sensex')) {
+      return 'market_outlook';
+    }
+    
+    if (normalized.includes('tcs') || normalized.includes('hdfc') || normalized.includes('reliance') || normalized.includes('bank') || normalized.includes('it sector') || normalized.includes('energy')) {
+      // Specific stock queries
+      if (normalized.includes('tcs')) return 'stock_tcs';
+      if (normalized.includes('hdfc')) return 'stock_hdfc';
+      if (normalized.includes('reliance')) return 'stock_reliance';
+      return 'stock_general';
+    }
+    
+    if (normalized.includes('strategy') || normalized.includes('when to buy') || normalized.includes('when to sell') || normalized.includes('entry') || normalized.includes('exit') || normalized.includes('stop loss')) {
+      return 'trading_strategy';
+    }
+    
+    if (normalized.includes('return') || normalized.includes('performance') || normalized.includes('profit') || normalized.includes('gain') || normalized.includes('growth') || normalized.includes('dividend')) {
+      return 'performance_analysis';
+    }
+    
+    if (normalized.includes('hello') || normalized.includes('hi') || normalized.includes('hey') || normalized.includes('good morning') || normalized.includes('good afternoon')) {
+      return 'greeting';
+    }
+    
+    if (normalized.includes('help') || normalized.includes('what can you do') || normalized.includes('how to use') || normalized.includes('guide')) {
+      return 'help';
+    }
+    
+    return 'default';
+  };
 
-  const actions = ['BUY', 'SELL', 'HOLD', 'STRONG BUY', 'STRONG SELL'];
-  const confidenceLevels = [65, 70, 75, 78, 80, 82, 85, 88, 90, 92, 95];
-  
-  const reasons = [
-    'Strong quarterly earnings growth and positive market sentiment',
-    'Technical indicators showing bullish momentum with good volume',
-    'Sector rotation favoring this stock with institutional buying',
-    'Recent product launches driving revenue growth expectations',
-    'Improved profit margins and cost optimization initiatives',
-    'Strong balance sheet with low debt-to-equity ratio',
-    'Market leadership position with competitive advantages',
-    'Positive analyst upgrades and target price revisions',
-    'Government policy support benefiting the sector',
-    'Digital transformation initiatives showing promising results',
-    'Export growth potential with global market expansion',
-    'Dividend yield attractive for income-focused investors',
-    'Management guidance upgrade for upcoming quarters',
-    'Strategic partnerships enhancing business prospects',
-    'ESG initiatives improving long-term sustainability'
-  ];
-
-  // Static Q&A patterns
-  const staticResponses = {
-    greetings: [
-      "Hello! Ready to explore the exciting world of Indian stock markets? 📈",
-      "Hi there! Let's dive into some stock analysis together! 🚀",
-      "Welcome! I'm here to help you navigate the stock market maze! 💡",
-      "Hey! What stock catches your interest today? 🎯"
-    ],
-    help: [
-      `I can help you with comprehensive analysis of our top 3 Indian stocks! Here's what I can do:
+  // Detect query type and generate appropriate response
+  const generateResponse = (message: string) => {
+    const cacheKey = normalizeQuery(message);
+    
+    // Check if we have a cached response for this query type
+    if (responseCache.has(cacheKey)) {
+      const cachedResponse = responseCache.get(cacheKey);
+      return {
+        ...cachedResponse,
+        metadata: { ...cachedResponse.metadata, cached: true }
+      };
+    }
+    
+    const lowerMessage = message.toLowerCase();
+    let response;
+    
+    // Greeting responses
+    if (cacheKey === 'greeting') {
+      response = {
+        content: "Hello! Ready to explore the exciting world of Indian stock markets? 📈",
+        metadata: { confidence: 95, action: 'greeting' }
+      };
+    }
+    
+    // Help responses
+    else if (cacheKey === 'help') {
+      response = {
+        content: `I can help you with comprehensive analysis of our top 3 Indian stocks! Here's what I can do:
 
 🔍 **My Capabilities:**
 • Stock Recommendations - Get buy/sell advice for TCS, HDFC Bank, Reliance
@@ -100,7 +153,7 @@ What would you like to know about these 3 stocks today?`,
 • Stock Comparisons - Compare any 2 of the 3 stocks
 • Market Insights - Sector analysis for IT, Banking, and Energy/Retail
 
-📊 **Our Focus Stocks:**
+� **Our  Focus Stocks:**
 • **TCS** - India's largest IT services company
 • **HDFC Bank** - Leading private sector bank
 • **Reliance** - Diversified conglomerate (Oil, Retail, Telecom)
@@ -112,31 +165,325 @@ What would you like to know about these 3 stocks today?`,
 • "Risk analysis for HDFC Bank"
 
 Just ask me anything about TCS, HDFC Bank, or Reliance!`,
+        metadata: { confidence: 95, action: 'help' }
+      };
+    }
+    
+    // Stock recommendations
+    else if (cacheKey === 'recommendation') {
+      response = {
+        content: `🎯 **Trading Recommendation**
 
-`Here's how I can assist you with these 3 premium Indian stocks:
+**TCS (TCS.NS)**
 
-💰 **Trading Insights for:**
-🔹 **TCS (TCS.NS)** - IT Services sector leader
-🔹 **HDFC Bank (HDFCBANK.NS)** - Banking sector champion  
-🔹 **Reliance (RELIANCE.NS)** - Multi-sector giant
+💰 **Current Price:** ₹4,125
+🎯 **Recommendation:** BUY
+📈 **Confidence:** 88%
 
-🎯 **Quick Commands:**
-• "Recommend from the 3 stocks" - Get best pick
-• "Compare all 3 stocks" - Full comparison
-• "TCS analysis" - Detailed TCS insights
-• "HDFC Bank outlook" - Banking sector view
-• "Reliance forecast" - Energy/retail perspective
+💡 **Analysis:**
+Strong IT sector fundamentals, consistent revenue growth, and attractive dividend yield make TCS a solid long-term investment.
 
-🏆 **Why These 3 Stocks?**
-• Market leaders in their sectors
-• Strong fundamentals and growth potential
-• High liquidity and institutional interest
-• Proven track record of performance
+⚡ **Technical Outlook:** Bullish momentum with strong support levels
 
-What would you like to explore about these top stocks?`
-    ],
-    marketOutlook: [
-      `📊 **Current Market Outlook**
+*This recommendation is based on current market analysis and technical indicators.*`,
+        metadata: {
+          action: 'recommendation',
+          symbol: 'TCS.NS',
+          confidence: 88
+        }
+      };
+    }
+    
+    // Price predictions - specific stocks
+    else if (cacheKey === 'prediction_tcs') {
+      response = {
+        content: `📈 **Price Prediction for TCS**
+
+**Current Price:** ₹4,150
+
+**Forecasted Prices:**
+• **1 Day:** ₹4,185
+• **1 Week:** ₹4,220
+• **1 Month:** ₹4,350
+• **3 Months:** ₹4,580
+
+📊 **Prediction Confidence:** 82%
+
+**Key Drivers:**
+• Strong quarterly earnings growth and positive market sentiment
+• Market sentiment and sector rotation
+• Technical pattern analysis
+
+*Predictions based on AI analysis of market trends and historical patterns.*`,
+        metadata: {
+          action: 'prediction',
+          symbol: 'TCS.NS',
+          confidence: 82
+        }
+      };
+    }
+    
+    else if (cacheKey === 'prediction_hdfc') {
+      response = {
+        content: `📈 **Price Prediction for HDFC Bank**
+
+**Current Price:** ₹1,678
+
+**Forecasted Prices:**
+• **1 Day:** ₹1,695
+• **1 Week:** ₹1,720
+• **1 Month:** ₹1,785
+• **3 Months:** ₹1,890
+
+📊 **Prediction Confidence:** 79%
+
+**Key Drivers:**
+• Strong quarterly earnings growth and positive market sentiment
+• Market sentiment and sector rotation
+• Technical pattern analysis
+
+*Predictions based on AI analysis of market trends and historical patterns.*`,
+        metadata: {
+          action: 'prediction',
+          symbol: 'HDFCBANK.NS',
+          confidence: 79
+        }
+      };
+    }
+    
+    else if (cacheKey === 'prediction_reliance') {
+      response = {
+        content: `📈 **Price Prediction for Reliance**
+
+**Current Price:** ₹2,890
+
+**Forecasted Prices:**
+• **1 Day:** ₹2,915
+• **1 Week:** ₹2,950
+• **1 Month:** ₹3,080
+• **3 Months:** ₹3,250
+
+📊 **Prediction Confidence:** 75%
+
+**Key Drivers:**
+• Strong quarterly earnings growth and positive market sentiment
+• Market sentiment and sector rotation
+• Technical pattern analysis
+
+*Predictions based on AI analysis of market trends and historical patterns.*`,
+        metadata: {
+          action: 'prediction',
+          symbol: 'RELIANCE.NS',
+          confidence: 75
+        }
+      };
+    }
+    
+    else if (cacheKey === 'prediction_general') {
+      response = {
+        content: `📈 **Price Prediction for TCS**
+
+**Current Price:** ₹4,150
+
+**Forecasted Prices:**
+• **1 Day:** ₹4,185
+• **1 Week:** ₹4,220
+• **1 Month:** ₹4,350
+• **3 Months:** ₹4,580
+
+📊 **Prediction Confidence:** 82%
+
+**Key Drivers:**
+• Strong quarterly earnings growth and positive market sentiment
+• Market sentiment and sector rotation
+• Technical pattern analysis
+
+*Predictions based on AI analysis of market trends and historical patterns.*`,
+        metadata: {
+          action: 'prediction',
+          symbol: 'TCS.NS',
+          confidence: 82
+        }
+      };
+    }
+    
+    // Risk analysis - specific stocks
+    else if (cacheKey === 'risk_tcs') {
+      response = {
+        content: `⚠️ **Risk Analysis for TCS**
+
+**Risk Metrics:**
+• **Volatility:** 18.5%
+• **Beta:** 0.85
+• **Sharpe Ratio:** 1.25
+• **Max Drawdown:** 12.3%
+• **1-Day VaR:** 2.1%
+
+🟢 **Risk Level: Low**
+
+**Risk Factors:**
+• Market volatility impact
+• Sector-specific challenges
+• Regulatory environment changes
+• Global economic conditions
+
+**Risk Management:**
+• Position sizing based on risk tolerance
+• Stop-loss levels at key support
+• Diversification across sectors
+• Regular portfolio rebalancing
+
+*Risk assessment based on historical data and current market conditions.*`,
+        metadata: {
+          action: 'risk_analysis',
+          symbol: 'TCS',
+          confidence: 85
+        }
+      };
+    }
+    
+    else if (cacheKey === 'risk_hdfc') {
+      response = {
+        content: `⚠️ **Risk Analysis for HDFC Bank**
+
+**Risk Metrics:**
+• **Volatility:** 22.1%
+• **Beta:** 1.15
+• **Sharpe Ratio:** 1.08
+• **Max Drawdown:** 15.7%
+• **1-Day VaR:** 2.8%
+
+🟡 **Risk Level: Medium**
+
+**Risk Factors:**
+• Market volatility impact
+• Sector-specific challenges
+• Regulatory environment changes
+• Global economic conditions
+
+**Risk Management:**
+• Position sizing based on risk tolerance
+• Stop-loss levels at key support
+• Diversification across sectors
+• Regular portfolio rebalancing
+
+*Risk assessment based on historical data and current market conditions.*`,
+        metadata: {
+          action: 'risk_analysis',
+          symbol: 'HDFC Bank',
+          confidence: 85
+        }
+      };
+    }
+    
+    else if (cacheKey === 'risk_reliance') {
+      response = {
+        content: `⚠️ **Risk Analysis for Reliance**
+
+**Risk Metrics:**
+• **Volatility:** 28.3%
+• **Beta:** 1.35
+• **Sharpe Ratio:** 0.92
+• **Max Drawdown:** 18.9%
+• **1-Day VaR:** 3.2%
+
+🔴 **Risk Level: High**
+
+**Risk Factors:**
+• Market volatility impact
+• Sector-specific challenges
+• Regulatory environment changes
+• Global economic conditions
+
+**Risk Management:**
+• Position sizing based on risk tolerance
+• Stop-loss levels at key support
+• Diversification across sectors
+• Regular portfolio rebalancing
+
+*Risk assessment based on historical data and current market conditions.*`,
+        metadata: {
+          action: 'risk_analysis',
+          symbol: 'Reliance',
+          confidence: 85
+        }
+      };
+    }
+    
+    else if (cacheKey === 'risk_general') {
+      response = {
+        content: `⚠️ **Risk Analysis for TCS**
+
+**Risk Metrics:**
+• **Volatility:** 18.5%
+• **Beta:** 0.85
+• **Sharpe Ratio:** 1.25
+• **Max Drawdown:** 12.3%
+• **1-Day VaR:** 2.1%
+
+🟢 **Risk Level: Low**
+
+**Risk Factors:**
+• Market volatility impact
+• Sector-specific challenges
+• Regulatory environment changes
+• Global economic conditions
+
+**Risk Management:**
+• Position sizing based on risk tolerance
+• Stop-loss levels at key support
+• Diversification across sectors
+• Regular portfolio rebalancing
+
+*Risk assessment based on historical data and current market conditions.*`,
+        metadata: {
+          action: 'risk_analysis',
+          symbol: 'TCS',
+          confidence: 85
+        }
+      };
+    }
+    
+    // Stock comparisons
+    else if (cacheKey === 'comparison') {
+      response = {
+        content: `📊 **Stock Comparison Analysis**
+
+**TCS vs HDFC Bank**
+
+📈 **TCS**
+• Key Strength: Consistent revenue growth and strong client relationships
+• Market Position: Strong fundamentals
+• Sector: IT Services
+
+📈 **HDFC Bank**
+• Key Strength: Superior asset quality and risk management
+• Market Position: Market leader
+• Sector: Banking
+
+🏆 **Winner: TCS**
+
+**Decision Factors:**
+• Better sector positioning for current market
+• Superior risk-adjusted return potential
+• Stronger fundamental metrics
+• Higher growth potential
+
+**Recommendation:** Consider TCS for better portfolio performance among these two options.
+
+*Both are quality stocks - choice depends on your sector preference and risk tolerance.*`,
+        metadata: {
+          action: 'comparison',
+          symbol: 'TCS, HDFC Bank',
+          confidence: 83
+        }
+      };
+    }
+    
+    // Market outlook
+    else if (cacheKey === 'market_outlook') {
+      response = {
+        content: `📊 **Current Market Outlook**
 
 🟢 **Bullish Sentiment:** 
 • IT sector showing strong momentum
@@ -154,311 +501,188 @@ What would you like to explore about these top stocks?`
 • Commodity price fluctuations
 
 Overall market sentiment: **CAUTIOUSLY OPTIMISTIC**`,
-
-`🌟 **Market Analysis Update**
-
-💪 **Strength Areas:**
-• Technology sector leadership continues
-• Financial services showing resilience
-• Consumer discretionary picking up pace
-
-🔍 **Opportunities:**
-• Value stocks at attractive levels
-• Dividend-paying stocks for stability
-• Growth stocks with strong fundamentals
-
-📉 **Challenges:**
-• Inflation concerns persist
-• Global supply chain issues
-• Currency fluctuation impacts
-
-Market recommendation: **SELECTIVE BUYING**`
-    ],
-    bestSectors: [
-      `🏆 **Analysis of Our 3 Stock Sectors**
-
-1️⃣ **Information Technology (TCS)**
-   • Strong export growth potential
-   • Digital transformation driving demand
-   • Margin expansion opportunities
-   • Global delivery model advantage
-
-2️⃣ **Banking & Financial Services (HDFC Bank)**
-   • Credit growth recovery underway
-   • NPA reduction trends positive
-   • Digital banking adoption accelerating
-   • Strong deposit franchise
-
-3️⃣ **Diversified Conglomerate (Reliance)**
-   • Energy transition opportunities
-   • Retail expansion in tier-2/3 cities
-   • Telecom market leadership (Jio)
-   • Petrochemicals export potential
-
-🎯 **Sector Outlook:** All three sectors show promise with different risk-reward profiles!`,
-
-`⭐ **Sector Performance Analysis**
-
-🚀 **Current Leaders:**
-• **IT Services (TCS)** - Export growth, margin stability
-• **Private Banking (HDFC Bank)** - Credit cycle recovery
-• **Integrated Business (Reliance)** - Diversification benefits
-
-💎 **Investment Themes:**
-• **Technology** - Digital transformation wave
-• **Financial Services** - Economic recovery play
-• **Energy & Retail** - Consumption growth story
-
-🛡️ **Risk Considerations:**
-• **TCS** - Currency fluctuations, global slowdown
-• **HDFC Bank** - Interest rate cycles, credit costs
-• **Reliance** - Oil price volatility, regulatory changes
-
-Choose based on your sector preference and risk appetite!`
-    ]
-  };
-
-  // Get random element from array
-  const getRandomElement = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
-
-  // Generate random stock recommendation
-  const generateRandomRecommendation = () => {
-    const stock = getRandomElement(stockDatabase);
-    const action = getRandomElement(actions);
-    const confidence = getRandomElement(confidenceLevels);
-    const reason = getRandomElement(reasons);
-    const priceVariation = (Math.random() - 0.5) * 0.1; // ±5% price variation
-    const currentPrice = Math.round(stock.price * (1 + priceVariation));
-    const targetPrice = Math.round(currentPrice * (1 + (Math.random() * 0.2 + 0.05))); // 5-25% upside
-
-    return {
-      content: `🎯 **Trading Recommendation**
-
-**${stock.name} (${stock.symbol})**
-
-💰 **Current Price:** ₹${currentPrice.toLocaleString()}
-🎯 **Recommendation:** ${action}
-📈 **Confidence:** ${confidence}%
-🚀 **Target Price:** ₹${targetPrice.toLocaleString()}
-📊 **Sector:** ${stock.sector}
-
-💡 **Analysis:**
-${reason}
-
-⚡ **Technical Outlook:** ${stock.trend === 'bullish' ? 'Bullish momentum with strong support levels' : stock.trend === 'neutral' ? 'Sideways movement, wait for breakout' : 'Bearish pressure, consider exit strategy'}
-
-*This recommendation is based on current market analysis and technical indicators.*`,
-      metadata: {
-        action: 'recommendation',
-        symbol: stock.symbol,
-        confidence: confidence
-      }
-    };
-  };
-
-  // Generate random comparison between the 3 stocks
-  const generateRandomComparison = () => {
-    const stock1 = getRandomElement(stockDatabase);
-    const stock2 = getRandomElement(stockDatabase.filter(s => s.symbol !== stock1.symbol));
-    const winner = Math.random() > 0.5 ? stock1 : stock2;
-
-    const comparisonReasons = {
-      'TCS': [
-        'Consistent revenue growth and strong client relationships',
-        'Leading market position in IT services globally',
-        'Strong cash generation and dividend track record',
-        'Resilient business model with recurring revenues'
-      ],
-      'HDFC Bank': [
-        'Superior asset quality and risk management',
-        'Strong deposit franchise and CASA ratio',
-        'Digital banking leadership and innovation',
-        'Consistent profitability and ROE performance'
-      ],
-      'Reliance': [
-        'Diversified business model reducing sector risks',
-        'Strong balance sheet and cash flow generation',
-        'Leadership in multiple business segments',
-        'Strategic investments in future growth areas'
-      ]
-    };
-
-    return {
-      content: `📊 **Stock Comparison Analysis**
-
-**${stock1.name} vs ${stock2.name}**
-
-📈 **${stock1.name} (${stock1.symbol})**
-• Current Price: ₹${stock1.price.toLocaleString()}
-• Sector: ${stock1.sector}
-• Market Trend: ${stock1.trend}
-• Key Strength: ${getRandomElement(comparisonReasons[stock1.name as keyof typeof comparisonReasons])}
-
-📈 **${stock2.name} (${stock2.symbol})**
-• Current Price: ₹${stock2.price.toLocaleString()}
-• Sector: ${stock2.sector}
-• Market Trend: ${stock2.trend}
-• Key Strength: ${getRandomElement(comparisonReasons[stock2.name as keyof typeof comparisonReasons])}
-
-🏆 **Winner: ${winner.name}**
-
-**Decision Factors:**
-• ${getRandomElement(comparisonReasons[winner.name as keyof typeof comparisonReasons])}
-• Better sector positioning for current market
-• Superior risk-adjusted return potential
-• Stronger fundamental metrics
-
-**Recommendation:** Consider ${winner.name} for better portfolio performance among these two options.
-
-*Both are quality stocks - choice depends on your sector preference and risk tolerance.*`,
-      metadata: {
-        action: 'comparison',
-        symbol: `${stock1.symbol}, ${stock2.symbol}`,
-        confidence: getRandomElement(confidenceLevels)
-      }
-    };
-  };
-
-  // Generate random prediction
-  const generateRandomPrediction = (symbol?: string) => {
-    const stock = symbol ? 
-      stockDatabase.find(s => s.symbol.toLowerCase().includes(symbol.toLowerCase()) || s.name.toLowerCase().includes(symbol.toLowerCase())) || getRandomElement(stockDatabase)
-      : getRandomElement(stockDatabase);
-    
-    const predictions = {
-      '1 day': Math.round(stock.price * (1 + (Math.random() - 0.5) * 0.04)), // ±2%
-      '1 week': Math.round(stock.price * (1 + (Math.random() - 0.5) * 0.08)), // ±4%
-      '1 month': Math.round(stock.price * (1 + (Math.random() - 0.5) * 0.15)), // ±7.5%
-      '3 months': Math.round(stock.price * (1 + (Math.random() - 0.5) * 0.25)) // ±12.5%
-    };
-
-    return {
-      content: `📈 **Price Prediction for ${stock.name}**
-
-**Current Price:** ₹${stock.price.toLocaleString()}
-
-**Forecasted Prices:**
-• **1 Day:** ₹${predictions['1 day'].toLocaleString()}
-• **1 Week:** ₹${predictions['1 week'].toLocaleString()}
-• **1 Month:** ₹${predictions['1 month'].toLocaleString()}
-• **3 Months:** ₹${predictions['3 months'].toLocaleString()}
-
-📊 **Prediction Confidence:** ${getRandomElement(confidenceLevels)}%
-
-**Key Drivers:**
-• ${getRandomElement(reasons)}
-• Market sentiment and sector rotation
-• Technical pattern analysis
-
-*Predictions based on AI analysis of market trends and historical patterns.*`,
-      metadata: {
-        action: 'prediction',
-        symbol: stock.symbol,
-        confidence: getRandomElement(confidenceLevels)
-      }
-    };
-  };
-
-  // Generate random risk analysis
-  const generateRandomRiskAnalysis = (symbol?: string) => {
-    const stock = symbol ? 
-      stockDatabase.find(s => s.symbol.toLowerCase().includes(symbol.toLowerCase()) || s.name.toLowerCase().includes(symbol.toLowerCase())) || getRandomElement(stockDatabase)
-      : getRandomElement(stockDatabase);
-    
-    const volatility = (Math.random() * 25 + 10).toFixed(1); // 10-35%
-    const beta = (Math.random() * 1.5 + 0.5).toFixed(2); // 0.5-2.0
-    const sharpe = (Math.random() * 1.5 + 0.3).toFixed(2); // 0.3-1.8
-
-    const riskLevel = parseFloat(volatility) > 25 ? 'High' : parseFloat(volatility) > 18 ? 'Medium' : 'Low';
-    const riskColor = riskLevel === 'High' ? '🔴' : riskLevel === 'Medium' ? '🟡' : '🟢';
-
-    return {
-      content: `⚠️ **Risk Analysis for ${stock.name}**
-
-**Risk Metrics:**
-• **Volatility:** ${volatility}%
-• **Beta:** ${beta}
-• **Sharpe Ratio:** ${sharpe}
-• **Sector Risk:** ${stock.sector} sector dynamics
-
-${riskColor} **Risk Level: ${riskLevel}**
-
-**Risk Factors:**
-• Market volatility impact
-• Sector-specific challenges
-• Regulatory environment changes
-• Global economic conditions
-
-**Risk Management:**
-• Position sizing based on risk tolerance
-• Stop-loss levels at key support
-• Diversification across sectors
-• Regular portfolio rebalancing
-
-*Risk assessment based on historical data and current market conditions.*`,
-      metadata: {
-        action: 'risk_analysis',
-        symbol: stock.symbol,
-        confidence: 85
-      }
-    };
-  };
-
-  // Detect query type and generate appropriate response
-  const generateResponse = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-    
-    // Greeting responses
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey') || lowerMessage.includes('good morning') || lowerMessage.includes('good afternoon')) {
-      return {
-        content: getRandomElement(staticResponses.greetings),
-        metadata: { confidence: 95, action: 'greeting' }
-      };
-    }
-    
-    // Help responses
-    if (lowerMessage.includes('help') || lowerMessage.includes('what can you do') || lowerMessage.includes('how to use') || lowerMessage.includes('guide')) {
-      return {
-        content: getRandomElement(staticResponses.help),
-        metadata: { confidence: 95, action: 'help' }
-      };
-    }
-    
-    // Market outlook
-    if (lowerMessage.includes('market outlook') || lowerMessage.includes('market view') || lowerMessage.includes('market sentiment') || lowerMessage.includes('market analysis')) {
-      return {
-        content: getRandomElement(staticResponses.marketOutlook),
         metadata: { confidence: 88, action: 'market_outlook' }
       };
     }
     
-    // Best sectors
-    if (lowerMessage.includes('best sector') || lowerMessage.includes('top sector') || lowerMessage.includes('sector recommendation') || lowerMessage.includes('which sector')) {
-      return {
-        content: getRandomElement(staticResponses.bestSectors),
-        metadata: { confidence: 85, action: 'sector_analysis' }
+    // Specific stock queries
+    else if (cacheKey === 'stock_tcs') {
+      response = {
+        content: `📊 **TCS Analysis**
+
+💰 **Current Price:** ₹4,125
+🎯 **Rating:** BUY
+📈 **Target:** ₹4,650
+
+💡 **Key Highlights:**
+• India's largest IT services company
+• Strong digital transformation demand
+• Excellent client retention rate
+• Consistent dividend payments
+
+📊 **Technical View:**
+• Strong support at ₹4000 levels
+• Resistance around ₹4500
+• RSI showing bullish momentum
+
+*TCS remains our top pick in the IT sector.*`,
+        metadata: { confidence: 90, action: 'stock_analysis' }
       };
     }
     
-    // Predictions
-    if (lowerMessage.includes('predict') || lowerMessage.includes('forecast') || lowerMessage.includes('price target') || lowerMessage.includes('future price')) {
-      const symbolMatch = message.match(/\b([A-Za-z]{2,10})\b/i);
-      return generateRandomPrediction(symbolMatch ? symbolMatch[1] : undefined);
+    else if (cacheKey === 'stock_hdfc') {
+      response = {
+        content: `🏦 **HDFC Bank Overview**
+
+💰 **Current Price:** ₹1,655
+🎯 **Rating:** BUY
+📈 **Target:** ₹1,950
+
+💡 **Key Strengths:**
+• Leading private sector bank
+• Superior asset quality
+• Strong digital banking platform
+• Excellent CASA ratio
+
+📊 **Financial Health:**
+• ROE: 16-18% consistently
+• NPA levels well controlled
+• Strong capital adequacy
+
+*Best banking stock for long-term wealth creation.*`,
+        metadata: { confidence: 87, action: 'stock_analysis' }
+      };
     }
     
-    // Risk analysis
-    if (lowerMessage.includes('risk') || lowerMessage.includes('volatility') || lowerMessage.includes('safe') || lowerMessage.includes('dangerous')) {
-      const symbolMatch = message.match(/\b([A-Za-z]{2,10})\b/i);
-      return generateRandomRiskAnalysis(symbolMatch ? symbolMatch[1] : undefined);
+    else if (cacheKey === 'stock_reliance') {
+      response = {
+        content: `⚡ **Reliance Industries Insight**
+
+💰 **Current Price:** ₹2,845
+🎯 **Rating:** BUY
+📈 **Target:** ₹3,280
+
+💡 **Business Segments:**
+• Oil & Gas: Traditional strength
+• Retail: Rapid expansion
+• Telecom (Jio): Market leader
+• Petrochemicals: Strong margins
+
+📊 **Growth Drivers:**
+• Digital services expansion
+• Retail footprint growth
+• Green energy initiatives
+
+*Diversified play on India's growth story.*`,
+        metadata: { confidence: 78, action: 'stock_analysis' }
+      };
     }
     
-    // Comparisons
-    if (lowerMessage.includes('compare') || lowerMessage.includes('vs') || lowerMessage.includes('versus') || lowerMessage.includes('better')) {
-      return generateRandomComparison();
+    else if (cacheKey === 'stock_general') {
+      response = {
+        content: `📊 **TCS Analysis**
+
+💰 **Current Price:** ₹4,125
+🎯 **Rating:** BUY
+📈 **Target:** ₹4,650
+
+💡 **Key Highlights:**
+• India's largest IT services company
+• Strong digital transformation demand
+• Excellent client retention rate
+• Consistent dividend payments
+
+� **Technical View:**
+• Strong support at ₹4000 levels
+• Resistance around ₹4500
+• RSI showing bullish momentum
+
+*TCS remains our top pick in the IT sector.*`,
+        metadata: { confidence: 90, action: 'stock_analysis' }
+      };
     }
     
-    // General recommendations (default)
-    return generateRandomRecommendation();
+    // Trading strategy questions
+    else if (cacheKey === 'trading_strategy') {
+      response = {
+        content: `🎯 **Trading Strategy for Top 3 Stocks**
+
+**Entry Strategy:**
+• **TCS:** Buy on dips below ₹4100
+• **HDFC Bank:** Accumulate below ₹1650
+• **Reliance:** Enter around ₹2800-2850
+
+**Exit Strategy:**
+• Take profits at 15-20% gains
+• Use trailing stop-loss of 8-10%
+• Book partial profits at resistance levels
+
+**Risk Management:**
+• Never risk more than 2% per trade
+• Diversify across all 3 stocks
+• Set stop-loss at 7-8% below entry
+
+**Time Horizon:** 3-6 months for best results
+
+*Stick to the plan and avoid emotional trading!*`,
+        metadata: { confidence: 90, action: 'trading_strategy' }
+      };
+    }
+    
+    // Performance and returns questions
+    else if (cacheKey === 'performance_analysis') {
+      response = {
+        content: `📊 **Performance Analysis - Last 12 Months**
+
+**TCS:**
+• Price Return: +22.5%
+• Dividend Yield: 3.2%
+• Total Return: +25.7%
+
+**HDFC Bank:**
+• Price Return: +18.2%
+• Dividend Yield: 1.8%
+• Total Return: +20.0%
+
+**Reliance:**
+• Price Return: +12.8%
+• Dividend Yield: 0.8%
+• Total Return: +13.6%
+
+🏆 **Best Performer:** TCS
+
+*Past performance doesn't guarantee future results.*`,
+        metadata: { confidence: 82, action: 'performance_analysis' }
+      };
+    }
+    
+    // Default response
+    else {
+      response = {
+        content: `🎯 **Today's Top Pick: TCS**
+
+💰 **Current Price:** ₹4,125
+🎯 **Recommendation:** BUY
+📈 **Confidence:** 88%
+
+� **Wehy TCS?**
+India's largest IT services company with strong fundamentals, consistent growth, and excellent management. Best positioned for the digital transformation wave.
+
+📊 **Key Highlights:**
+• Leading market position globally
+• Strong client relationships
+• Consistent dividend payments
+• Robust cash generation
+
+*This is your best investment choice among the top 3 Indian stocks.*`,
+        metadata: { confidence: 88, action: 'recommendation' }
+      };
+    }
+    
+    // Cache the response for future use
+    setResponseCache(prev => new Map(prev.set(cacheKey, response)));
+    
+    return response;
   };
 
   // Send message

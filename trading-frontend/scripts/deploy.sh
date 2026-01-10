@@ -35,18 +35,6 @@ if [ -f "package.json" ] && grep -q "\"test\"" package.json; then
     npm test -- --watchAll=false
 fi
 
-# Build Docker image if Dockerfile exists
-if [ -f "Dockerfile" ]; then
-    echo "🐳 Building Docker image..."
-    docker build -t trading-frontend:latest .
-    
-    # Tag with version if provided
-    if [ ! -z "$VERSION" ]; then
-        docker tag trading-frontend:latest trading-frontend:$VERSION
-        echo "🏷️  Tagged image with version: $VERSION"
-    fi
-fi
-
 # Deploy to staging/production
 if [ "$NODE_ENV" = "production" ]; then
     echo "🌐 Deploying to production..."

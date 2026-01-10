@@ -130,13 +130,6 @@ class NotificationConfigManager:
                     "chat_id": "${TELEGRAM_CHAT_ID}",
                     "rate_limit": 30
                 },
-                "whatsapp": {
-                    "enabled": True,
-                    "method": "business_api",
-                    "access_token": "${WHATSAPP_ACCESS_TOKEN}",
-                    "phone_number_id": "${WHATSAPP_PHONE_ID}",
-                    "recipient": "${WHATSAPP_RECIPIENT}"
-                },
                 "preferences": {
                     "signal_types": ["BUY", "SELL"],
                     "min_confidence": 0.7,

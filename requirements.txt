@@ -29,7 +29,7 @@ pytz>=2022.1
 requests>=2.28.0
 
 # Notifications
-selenium>=4.0.0  # For WhatsApp web automation (optional)
+# selenium>=4.0.0  # Removed WhatsApp automation dependency
 
 # Scheduling
 schedule>=1.2.0  # For automated task scheduling

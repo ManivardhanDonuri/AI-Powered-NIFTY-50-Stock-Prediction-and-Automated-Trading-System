@@ -121,5 +121,4 @@ coverage.xml
 # Message Queue Persistence
 message_queue.pkl
 
-# WhatsApp Session
-whatsapp_session/
+# Session files
