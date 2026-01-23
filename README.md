@@ -166,41 +166,115 @@ python main.py test-notifications # Test Telegram notifications
 │   ├── ml_signal_generator_enhanced.py  # AI signal generation
 │   ├── data_fetcher.py           # Stock data fetching
 │   ├── technical_indicators.py   # Technical analysis
-│   └── backtester.py            # Performance testing
+│   ├── backtester.py            # Performance testing
+│   ├── trading_scheduler.py      # Automated scheduling
+│   └── ai_notification_enhancer.py  # AI-enhanced notifications
 │
-├── 🤖 AI Models
+├── 🤖 AI & ML Models
 │   ├── ml_models.py             # LSTM/GRU implementations
 │   ├── ml_trainer.py            # Model training
 │   ├── ml_feature_engineer.py   # Feature engineering
-│   └── models/                  # Trained model files
-│       ├── TCS.NS_lstm_model.h5
-│       ├── HDFCBANK.NS_lstm_model.h5
-│       └── RELIANCE.NS_lstm_model.h5
+│   ├── ml_visualizer.py         # Model visualization
+│   ├── models/                  # Trained model files
+│   │   ├── TCS.NS_lstm_model.h5
+│   │   ├── TCS.NS_gru_model.h5
+│   │   ├── HDFCBANK.NS_lstm_model.h5
+│   │   ├── HDFCBANK.NS_gru_model.h5
+│   │   ├── RELIANCE.NS_lstm_model.h5
+│   │   ├── RELIANCE.NS_gru_model.h5
+│   │   └── *.pkl                # Model metadata files
+│   └── scalers/                 # Data preprocessing scalers
 │
-├── 📱 Notifications
+├── 📱 Notifications (Telegram-Only)
 │   ├── notifications/           # Streamlined notification system
-│   │   ├── notification_manager.py
-│   │   ├── telegram_service.py
-│   │   └── message_formatter.py
+│   │   ├── notification_manager.py  # Main notification handler
+│   │   ├── telegram_service.py     # Telegram bot integration
+│   │   ├── message_formatter.py    # Message formatting
+│   │   ├── delivery_queue.py       # Message queue system
+│   │   ├── base_service.py         # Base notification service
+│   │   ├── config.py              # Notification configuration
+│   │   └── logger.py              # Notification logging
 │
-├── 🌐 Frontend
-│   ├── trading-frontend/        # Next.js web dashboard
-│   │   ├── src/components/      # React components
-│   │   │   └── chat/           # AI chat interface
-│   │   ├── src/app/            # App pages
-│   │   └── api/                # Node.js API server
+├── 🌐 Modern Web Dashboard
+│   ├── trading-frontend/        # Next.js web application
+│   │   ├── src/
+│   │   │   ├── app/            # Next.js 14 app router
+│   │   │   │   ├── page.tsx    # Main dashboard page
+│   │   │   │   ├── chat/       # AI chat page
+│   │   │   │   ├── portfolio/  # Portfolio tracking
+│   │   │   │   └── history/    # Trading history
+│   │   │   ├── components/     # React components
+│   │   │   │   ├── chat/       # AI chat interface
+│   │   │   │   │   └── AITradingChatInterface.tsx
+│   │   │   │   ├── dashboard/  # Dashboard components
+│   │   │   │   └── ui/         # Reusable UI components
+│   │   │   └── lib/           # Utility functions
+│   │   ├── api/               # Node.js API server
+│   │   │   └── server.js      # Express.js backend
+│   │   ├── public/            # Static assets
+│   │   ├── package.json       # Frontend dependencies
+│   │   └── scripts/           # Deployment scripts
+│   │       └── deploy.sh      # Production deployment
 │
-├── 🧠 LLM Backend
+├── 🧠 LLM Backend (AI Chat)
 │   ├── llm_backend/            # FastAPI AI chat backend
-│   │   ├── services/           # LLM services
-│   │   ├── routers/            # API routes
-│   │   └── websocket/          # Real-time chat
+│   │   ├── main.py            # FastAPI application entry
+│   │   ├── config.py          # Backend configuration
+│   │   ├── services/          # AI services
+│   │   ├── routers/           # API route handlers
+│   │   ├── database/          # Database models
+│   │   ├── websocket/         # Real-time chat WebSocket
+│   │   ├── ai_trading/        # Trading-specific AI logic
+│   │   └── requirements.txt   # Backend dependencies
 │
-└── ⚙️ Configuration
-    ├── config.json             # System settings
-    ├── .env                    # Environment variables
-    └── service_account.json    # Google Sheets credentials
+├── 📊 Data & Logging
+│   ├── google_sheets_logger.py # Google Sheets integration
+│   ├── service_account.json   # Google API credentials
+│   └── __pycache__/          # Python cache files
+│
+└── ⚙️ Configuration & Setup
+    ├── config.json            # Main system configuration
+    ├── config_template.json   # Configuration template
+    ├── .env                   # Environment variables (create from template)
+    ├── requirements.txt       # Python dependencies
+    ├── README.md             # This documentation
+    ├── .gitignore            # Git ignore rules
+    └── .git/                 # Git repository data
 ```
+
+### 📂 **Key Directories Explained**
+
+#### **🐍 Core System Files**
+- **Main Logic**: Core trading algorithms and signal generation
+- **ML Integration**: Machine learning model implementations
+- **Data Processing**: Real-time data fetching and technical analysis
+
+#### **🤖 AI & ML Models**
+- **Trained Models**: Pre-trained LSTM/GRU models for each stock
+- **Model Files**: Both H5 (TensorFlow) and PKL (metadata) formats
+- **Scalers**: Data preprocessing and normalization tools
+
+#### **📱 Notifications**
+- **Telegram-Only**: Streamlined to single notification channel
+- **Queue System**: Reliable message delivery with retry logic
+- **Smart Formatting**: AI-enhanced message formatting
+
+#### **🌐 Frontend Dashboard**
+- **Next.js 14**: Modern React framework with app router
+- **AI Chat**: Interactive trading assistant interface
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Real-time Updates**: WebSocket integration for live data
+
+#### **🧠 LLM Backend**
+- **FastAPI**: High-performance Python API framework
+- **AI Services**: Natural language processing for chat
+- **WebSocket**: Real-time bidirectional communication
+- **Trading Logic**: AI-powered trading insights and recommendations
+
+#### **⚙️ Configuration**
+- **Modular Config**: JSON-based configuration system
+- **Environment Variables**: Secure credential management
+- **Template Files**: Easy setup with provided templates
 
 ## ⚙️ Configuration
 
